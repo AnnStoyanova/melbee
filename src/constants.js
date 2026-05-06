@@ -113,7 +113,7 @@ function stopBgMusic() {
 const GW          = 360;
 const GH          = 640;
 const GRAVITY     = 0.22;
-const JUMP_VY     = -6.5;
+const JUMP_VY     = -5.0;
 const BEE_X       = 90;
 const BEE_HIT_R   = 16;
 const BASE_SPEED  = 1.4;
