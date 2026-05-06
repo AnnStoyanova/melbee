@@ -124,5 +124,5 @@ const TURBO_MAX   = 10;
 const TURBO_FRAMES= 180;
 const LVL_EVERY   = 5;
 const PIPE_W      = 38;
-const GAP_H       = 250;
+const GAP_H       = 210;
 const DOUBLE_MS   = 320;
