@@ -215,7 +215,7 @@ function GamePlay({ onGameOver }) {
       <canvas ref={canvasRef} width={GW} height={GH}
         style={{ position:'absolute', inset:0, background:'transparent' }}
         onTouchStart={e => { e.preventDefault(); handleTap(); }}
-        onMouseDown={handleTap}/>
+        onMouseDown={e => { if (e.pointerType !== 'touch') handleTap(); }}/>
       <div className="hud">
         <div className="hud__score">{score}</div>
         <div className="hud__level">Рівень {level}</div>
