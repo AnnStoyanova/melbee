@@ -308,9 +308,22 @@ html, body {
 .aff {
   background: linear-gradient(180deg, #1A1A22 0%, #0F0F10 100%);
   padding: 24px 22px 28px;
-  justify-content: flex-start;
+  justify-content: space-between;
   position: relative;
   overflow: hidden;
+}
+.aff__group-top,
+.aff__group-bottom {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.aff__group-top {
+  flex: 0 0 auto;
+}
+.aff__group-bottom {
+  flex: 0 0 auto;
 }
 .aff__bg-hex {
   position: absolute; pointer-events: none;
@@ -327,10 +340,8 @@ html, body {
 .aff__skip { color: var(--honey); cursor: pointer; }
 .aff__hero {
   width: 100%;
-  flex: 1;
   display: flex; align-items: center; justify-content: center;
-  min-height: 0;
-  margin-bottom: 4px;
+  margin-bottom: 12px;
 }
 .aff__bee-wrap {
   animation: float 3s ease-in-out infinite;
@@ -385,8 +396,8 @@ html, body {
   background: rgba(245,197,24,.08);
   border: 1px solid rgba(245,197,24,.2);
   border-radius: 12px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
 }
 .aff__bonus-icon { flex-shrink: 0; }
 .aff__bonus-copy { display: flex; flex-direction: column; gap: 1px; }
