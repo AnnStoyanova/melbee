@@ -28,7 +28,7 @@ const DEFAULT_TEXTS = {
   startSub:      'Tap - \u2b06\ufe0f Up! \u00b7 Double tap - \u26a1 Turbo mode \u00b7 \ud83c\udf38 - Collect flowers',
   startBtn:      '\ud83c\udf6f Play!',
   startChip:     'MELBET MINI APP',
-  startEyebrow:  '',               // прибрати
+  startEyebrow:  '  ',               // прибрати
   startRecordLbl:'Record \ud83c\udf38',
   startGamesLbl: 'Games',
   affTitle:      'MelBee',
@@ -38,10 +38,10 @@ const DEFAULT_TEXTS = {
   affError:      'Invalid format. Allowed: A\u2013Z, 0\u20139, _ \u2013',
   affBtnReady:   'LET\u0060S FLY! \u2192',
   affBtnEmpty:   'ENTER YOUR ID',
-  affBonusVal:   '',               // прибрати
-  affBonusSub:   '',               // прибрати
+  affBonusVal:   '  ',               // прибрати
+  affBonusSub:   '  ',               // прибрати
   affPaste:      '\ud83d\udccb Paste from clipboard',
-  affSkip:       '',               // прибрати
+  affSkip:       '  ',               // прибрати
   hudTurboLabel: '\u26a1 Turbo',
   hudTurboActive:'\ud83d\ude80 Turbo',
   goEmoji:       '\ud83d\udca5',
