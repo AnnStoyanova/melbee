@@ -38,7 +38,7 @@ function App() {
   };
 
   return (
-    <div style={{ position:'relative', width:GW, height:GH, overflow:'hidden', background:'#1B1B20' }}>
+    <div style={{ position:'relative', width:'100%', height:'100%', overflow:'hidden', background:'#1B1B20' }}>
       {screen==='affiliate' && <AffiliateScreen onNext={onAffNext} onSkip={onAffSkip}/>}
       {screen==='start'     && <StartScreen onPlay={play} best={best} games={games}/>}
       {screen==='game'      && <GamePlay key={gameKey} onGameOver={onGameOver}/>}
@@ -48,6 +48,14 @@ function App() {
       {screen==='lb'        && <LeaderboardScreen onPlay={play}/>}
     </div>
   );
+}
+
+// Telegram WebApp init: разворачиваем мини-приложение на полный экран
+if (window.Telegram && window.Telegram.WebApp) {
+  try {
+    window.Telegram.WebApp.ready();
+    window.Telegram.WebApp.expand();
+  } catch (e) {}
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
