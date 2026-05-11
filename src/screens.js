@@ -1,5 +1,5 @@
 // screens.js — AffiliateScreen, StartScreen, GameOverScreen, LeaderboardScreen
- 
+
 // ── AFFILIATE SCREEN ─────────────────────────────────────────
 function AffiliateScreen({ onNext, onSkip }) {
   const T = getTexts();
@@ -7,24 +7,24 @@ function AffiliateScreen({ onNext, onSkip }) {
   const [focused,  setFocused]  = useState(false);
   const [error,    setError]    = useState(null);
   const [checking, setChecking] = useState(false);
- 
+
   const formatOk = id.length >= 4 && /^[A-Za-z0-9_-]+$/.test(id);
- 
+
   const getAllowedIds = () =>
     LS.get('mb_allowed_ids', []).map(s => s.toUpperCase().trim()).filter(Boolean);
- 
+
   const validateId = (value) => {
     const allowed = getAllowedIds();
     if (allowed.length === 0) return true;
     return allowed.includes(value.toUpperCase().trim());
   };
- 
+
   const onChange = e => {
     const v = e.target.value.toUpperCase().slice(0, 16);
     setId(v);
     if (error) setError(null);
   };
- 
+
   const submit = () => {
     if (!formatOk) { setError('format'); return; }
     setChecking(true);
@@ -33,15 +33,15 @@ function AffiliateScreen({ onNext, onSkip }) {
       else { setChecking(false); setError('unknown'); }
     }, 400);
   };
- 
+
   const paste = async () => {
     try { setId((await navigator.clipboard.readText()).trim().toUpperCase().slice(0, 16)); } catch {}
   };
- 
+
   const isValid  = formatOk && error === null;
   const hasError = error !== null;
   const errText  = error === 'format' ? T.affError.replace('Partner ID не знайдено', 'Невірний формат. Дозволено: A–Z, 0–9, _ –') : T.affError;
- 
+
   return (
     <div className="aff screen">
       <svg className="hex-deco" viewBox="0 0 360 640" xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +52,7 @@ function AffiliateScreen({ onNext, onSkip }) {
         })}
       </svg>
       <div className="aff__hero">
-        <div className="aff__bee-wrap"><Bee size={110} variant="fly"/></div>
+        <div className="aff__bee-wrap"><BeeBolid size={180} number="1"/></div>
       </div>
       <h1 className="aff__title">{T.affTitle}</h1>
       <p className="aff__sub">{T.affSub}</p>
@@ -87,7 +87,7 @@ function AffiliateScreen({ onNext, onSkip }) {
     </div>
   );
 }
- 
+
 // ── START SCREEN ─────────────────────────────────────────────
 function StartScreen({ onPlay, best, games }) {
   const T = getTexts();
@@ -122,7 +122,7 @@ function StartScreen({ onPlay, best, games }) {
     </div>
   );
 }
- 
+
 // ── GAME OVER SCREEN ─────────────────────────────────────────
 function GameOverScreen({ score, level, flowers, isNew, msg, onLb, onRetry }) {
   const T = getTexts();
@@ -143,7 +143,7 @@ function GameOverScreen({ score, level, flowers, isNew, msg, onLb, onRetry }) {
     </div>
   );
 }
- 
+
 // ── LEADERBOARD SCREEN ────────────────────────────────────────
 function LeaderboardScreen({ onPlay }) {
   const T     = getTexts();
