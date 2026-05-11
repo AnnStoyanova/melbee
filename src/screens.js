@@ -51,49 +51,45 @@ function AffiliateScreen({ onNext, onSkip }) {
           return <polygon key={i} points={pts.join(' ')} fill="none" stroke="#F5C518" strokeWidth="1.5" opacity="0.12"/>;
         })}
       </svg>
-      <div className="aff__group-top">
-        <div className="aff__hero">
-          <div className="aff__bee-wrap"><Bee size={150} variant="fly"/></div>
-        </div>
-        <h1 className="aff__title">{T.affTitle}</h1>
-        <p className="aff__sub">{T.affSub}</p>
+      <div className="aff__hero">
+        <div className="aff__bee-wrap"><Bee size={100} variant="fly"/></div>
       </div>
-      <div className="aff__group-bottom">
-        <label className={`aff__field${focused?' is-focused':''}${hasError?' is-error':''}${isValid?' is-valid':''}`}>
-          <span className="aff__field-label">{T.affFieldLabel}</span>
-          <div className="aff__field-row">
-            <span className="aff__field-prefix">#</span>
-            <input className="aff__input" type="text" value={id} placeholder="BEE7X42"
-              onChange={onChange}
-              onFocus={() => setFocused(true)}
-              onBlur={() => setFocused(false)}
-              spellCheck={false} autoComplete="off"/>
-            {isValid && (
-              <svg width="22" height="22" viewBox="0 0 22 22">
-                <path d="M5 11L9 15L17 7" stroke="#7BC043" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
-            {checking && <span style={{fontSize:18}}>⏳</span>}
-          </div>
-        </label>
-        <p className={`aff__hint${hasError?' aff__hint--err':''}`}>
-          {hasError ? errText : ''}
-        </p>
-        <div className="aff__bonus">
-          <span className="aff__bonus-icon" style={{fontSize:28}}>🏆</span>
-          <div className="aff__bonus-copy">
-            <b>Compete for the top</b>
-            <span>Track your record and climb the leaderboard</span>
-          </div>
+      <h1 className="aff__title">{T.affTitle}</h1>
+      <p className="aff__sub">{T.affSub}</p>
+      <label className={`aff__field${focused?' is-focused':''}${hasError?' is-error':''}${isValid?' is-valid':''}`}>
+        <span className="aff__field-label">{T.affFieldLabel}</span>
+        <div className="aff__field-row">
+          <span className="aff__field-prefix">#</span>
+          <input className="aff__input" type="text" value={id} placeholder="BEE7X42"
+            onChange={onChange}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+            spellCheck={false} autoComplete="off"/>
+          {isValid && (
+            <svg width="22" height="22" viewBox="0 0 22 22">
+              <path d="M5 11L9 15L17 7" stroke="#7BC043" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          )}
+          {checking && <span style={{fontSize:18}}>⏳</span>}
         </div>
-        <div className="aff__cta">
-          <button
-            className={`btn btn--primary btn--xl btn--wide aff__submit${(!formatOk||checking)?' is-disabled':''}`}
-            onClick={submit}
-            disabled={checking}>
-            {checking ? 'CHECKING...' : formatOk ? T.affBtnReady : T.affBtnEmpty}
-          </button>
+      </label>
+      <p className={`aff__hint${hasError?' aff__hint--err':''}`}>
+        {hasError ? errText : ''}
+      </p>
+      <div className="aff__bonus">
+        <span className="aff__bonus-icon" style={{fontSize:28}}>🏆</span>
+        <div className="aff__bonus-copy">
+          <b>Compete for the top</b>
+          <span>Track your record and climb the leaderboard</span>
         </div>
+      </div>
+      <div className="aff__cta">
+        <button
+          className={`btn btn--primary btn--xl btn--wide aff__submit${(!formatOk||checking)?' is-disabled':''}`}
+          onClick={submit}
+          disabled={checking}>
+          {checking ? 'CHECKING...' : formatOk ? T.affBtnReady : T.affBtnEmpty}
+        </button>
       </div>
     </div>
   );
