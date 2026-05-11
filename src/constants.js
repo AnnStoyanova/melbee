@@ -21,48 +21,184 @@ const LS = {
 };
 
 /* ═══════════════════════════════════════
-   EDITABLE TEXTS  (admin-panel controlled)
+   TEXTS  — дефолти + перевизначення з адмінки
 ═══════════════════════════════════════ */
 const DEFAULT_TEXTS = {
-  startTitle: 'MELBEE GP',
-  startSub:   'Тап — вгору · Подвійний тап — ⚡ Турбо · Збирай квіти!',
-  startBtn:   '🍯 Грати!',
-  affTitle:   'AFFILIATE ID',
-  affSub:     'Введи свій affiliate-код щоб отримати стартовий бонус та приєднатися до команди.',
-  lbTitle:    '🏆 Лідерборд',
-  goTitle:    'КІНЕЦЬ',
-  playBtn:    '🏎 Грати знову!',
-  lbBtn:      '🏆 Лідерборд',
+  startTitle:    'MELBEE GP',
+  startSub:      'Тап — вгору · Подвійний тап — ⚡ Турбо · Збирай квіти!',
+  startBtn:      '🍯 Грати!',
+  startChip:     'TELEGRAM MINI APP',
+  startEyebrow:  'EPISODE 01',
+  startRecordLbl:'Рекорд 🌸',
+  startGamesLbl: 'Ігор',
+  affTitle:      'AFFILIATE ID',
+  affSub:        'Введи свій affiliate-код щоб отримати стартовий бонус та приєднатися до команди.',
+  affFieldLabel: 'YOUR PARTNER ID',
+  affHint:       'Знайди код у листі або у свого менеджера.',
+  affError:      'Partner ID не знайдено. Перевір код у свого менеджера.',
+  affBtnReady:   'ПОЇХАЛИ →',
+  affBtnEmpty:   'ВВЕДИ ID',
+  affBonusVal:   '+500 МЕДУ',
+  affBonusSub:   'стартовий бонус за ID',
+  affPaste:      '📋 Вставити з буфера',
+  affSkip:       'ПРОПУСТИТИ',
+  hudTurboLabel: '⚡ Турбо',
+  hudTurboActive:'🚀 ТУРБО!',
+  goEmoji:       '💥',
+  goTitle:       'КІНЕЦЬ',
+  goStatTpl:     'Рівень {level} · 🌸 {flowers} квіток',
+  goRecord:      '🏆 НОВИЙ РЕКОРД!',
+  goLbBtn:       '🏆 Лідерборд',
+  goRetryBtn:    'Ще раз',
+  lbTitle:       '🏆 Лідерборд',
+  lbEmpty:       'Рекордів нема! Будь першим 🐝',
+  lbMe:          '👤',
+  playBtn:       '🏎 Грати знову!',
+  crashMsg1:     'Ой, врізався! 🪨',
+  crashMsg2:     'Мёд не зібрав! 🍯',
+  crashMsg3:     'Бджілка впала! 🐝',
+  crashMsg4:     'Паркан переміг! 🪵',
+  crashMsg5:     'Спробуй ще раз! 🔁',
+  crashMsg6:     'Турбо не врятувало! ⚡',
 };
-const getTexts = () => LS.get('mb_texts', DEFAULT_TEXTS);
+
+const getTexts = () => ({ ...DEFAULT_TEXTS, ...LS.get('mb_texts', {}) });
+
+/* ═══════════════════════════════════════
+   GAME CONFIG — дефолти + перевизначення з адмінки
+═══════════════════════════════════════ */
+const DEFAULT_CONFIG = {
+  gravity:   0.22,
+  jumpVy:   -5.0,
+  baseSpeed: 1.4,
+  speedInc:  0.12,
+  maxSpeed:  3.8,
+  gapH:      210,
+  lvlEvery:  5,
+  turboBonus:1.8,
+  pipeW:     38,
+};
+
+function getConfig() {
+  const saved = LS.get('mb_gameconfig', {});
+  return { ...DEFAULT_CONFIG, ...Object.fromEntries(
+    Object.entries(saved).map(([k, v]) => [k, parseFloat(v)])
+  )};
+}
+
+/* ═══════════════════════════════════════
+   GAME CONSTANTS  (computed from config)
+═══════════════════════════════════════ */
+const GW           = 360;
+const GH           = 640;
+const TURBO_MAX    = 10;
+const TURBO_FRAMES = 180;
+const DOUBLE_MS    = 320;
+const BEE_X        = 90;
+const BEE_HIT_R    = 16;
+
+// These are read fresh from config each game start via getConfig()
+let GRAVITY     = DEFAULT_CONFIG.gravity;
+let JUMP_VY     = DEFAULT_CONFIG.jumpVy;
+let BASE_SPEED  = DEFAULT_CONFIG.baseSpeed;
+let SPEED_INC   = DEFAULT_CONFIG.speedInc;
+let MAX_SPEED   = DEFAULT_CONFIG.maxSpeed;
+let GAP_H       = DEFAULT_CONFIG.gapH;
+let LVL_EVERY   = DEFAULT_CONFIG.lvlEvery;
+let TURBO_BONUS = DEFAULT_CONFIG.turboBonus;
+let PIPE_W      = DEFAULT_CONFIG.pipeW;
+
+function applyConfig() {
+  const cfg = getConfig();
+  GRAVITY     = cfg.gravity;
+  JUMP_VY     = cfg.jumpVy;
+  BASE_SPEED  = cfg.baseSpeed;
+  SPEED_INC   = cfg.speedInc;
+  MAX_SPEED   = cfg.maxSpeed;
+  GAP_H       = cfg.gapH;
+  LVL_EVERY   = cfg.lvlEvery;
+  TURBO_BONUS = cfg.turboBonus;
+  PIPE_W      = cfg.pipeW;
+}
 
 /* ═══════════════════════════════════════
    LEADERBOARD
 ═══════════════════════════════════════ */
-const CRASH_MSGS = [
-  'Ой, врізався! 🪨', 'Мёд не зібрав! 🍯', 'Бджілка впала! 🐝',
-  'Паркан переміг! 🪵', 'Спробуй ще раз! 🔁', 'Турбо не врятувало! ⚡',
-];
+function getCrashMsgs() {
+  const T = getTexts();
+  return [T.crashMsg1, T.crashMsg2, T.crashMsg3, T.crashMsg4, T.crashMsg5, T.crashMsg6];
+}
 
-function lbAdd(score, partnerId) {
-  const name = partnerId ? '#' + partnerId : TG_NAME;
+function lbAdd(score, partnerId, tgData = {}) {
+  const name = partnerId
+    ? '#' + partnerId
+    : (tgData.username ? '@' + tgData.username : TG_NAME);
+
+  // Leaderboard
   let lb = LS.get('mb_lb', []);
-  lb.push({ name, score, date: new Date().toLocaleDateString('uk') });
+  lb.push({
+    name, score,
+    date:       new Date().toLocaleDateString('uk'),
+    tgId:       tgData.id        || null,
+    tgUsername: tgData.username  || null,
+    partnerId:  partnerId        || null,
+  });
   lb.sort((a, b) => b.score - a.score);
   lb = lb.slice(0, 10);
   LS.set('mb_lb', lb);
+
+  // Partner stats
   if (partnerId) {
     let ids = LS.get('mb_partner_ids', []);
     const ex = ids.find(e => e.id === partnerId);
-    if (ex) { ex.games++; ex.bestScore = Math.max(ex.bestScore, score); ex.lastSeen = new Date().toISOString(); }
-    else ids.push({ id: partnerId, games: 1, bestScore: score, firstSeen: new Date().toISOString(), lastSeen: new Date().toISOString() });
+    if (ex) {
+      ex.games++;
+      ex.bestScore = Math.max(ex.bestScore, score);
+      ex.lastSeen  = new Date().toISOString();
+      if (!ex.tgId       && tgData.id)       ex.tgId       = tgData.id;
+      if (!ex.tgUsername && tgData.username) ex.tgUsername = tgData.username;
+    } else {
+      ids.push({
+        id: partnerId, games: 1, bestScore: score,
+        firstSeen:  new Date().toISOString(),
+        lastSeen:   new Date().toISOString(),
+        tgId:       tgData.id        || null,
+        tgUsername: tgData.username  || null,
+        tgName:     tgData.firstName || null,
+      });
+    }
     ids.sort((a, b) => b.bestScore - a.bestScore);
     LS.set('mb_partner_ids', ids);
+  }
+
+  // Save all unique TG users
+  if (tgData.id) {
+    let tgUsers = LS.get('mb_tg_users', []);
+    const exTg  = tgUsers.find(u => u.id === tgData.id);
+    if (exTg) {
+      exTg.lastSeen  = new Date().toISOString();
+      exTg.games     = (exTg.games || 0) + 1;
+      exTg.bestScore = Math.max(exTg.bestScore || 0, score);
+      if (partnerId) exTg.partnerId = partnerId;
+    } else {
+      tgUsers.push({
+        id:        tgData.id,
+        username:  tgData.username  || null,
+        firstName: tgData.firstName || null,
+        lastName:  tgData.lastName  || null,
+        partnerId: partnerId        || null,
+        games:     1,
+        bestScore: score,
+        firstSeen: new Date().toISOString(),
+        lastSeen:  new Date().toISOString(),
+      });
+    }
+    LS.set('mb_tg_users', tgUsers);
   }
 }
 
 /* ═══════════════════════════════════════
-   AUDIO  (Web Audio API — no files needed)
+   AUDIO
 ═══════════════════════════════════════ */
 let _ac = null;
 const ac = () => { if (!_ac) _ac = new (window.AudioContext || window.webkitAudioContext)(); return _ac; };
@@ -80,6 +216,7 @@ function tone(freq, type, dur, vol = .18, delay = 0) {
     osc.start(t); osc.stop(t + dur + .01);
   } catch {}
 }
+
 const sfx = {
   jump:   () => { tone(420,'sine',.08,.12); tone(560,'sine',.06,.08,.04); },
   flower: () => { tone(880,'sine',.12,.15); tone(1100,'sine',.1,.12,.05); tone(1320,'sine',.08,.1,.1); },
@@ -109,20 +246,3 @@ function stopBgMusic() {
   _drones.forEach(d => { try { d.osc.stop(); d.lfo.stop(); } catch {} });
   _drones = [];
 }
-
-const GW          = 360;
-const GH          = 640;
-const GRAVITY     = 0.22;
-const JUMP_VY     = -5.0;
-const BEE_X       = 90;
-const BEE_HIT_R   = 16;
-const BASE_SPEED  = 1.4;
-const SPEED_INC   = 0.12;
-const MAX_SPEED   = 3.8;
-const TURBO_BONUS = 1.8;
-const TURBO_MAX   = 10;
-const TURBO_FRAMES= 180;
-const LVL_EVERY   = 5;
-const PIPE_W      = 38;
-const GAP_H       = 210;
-const DOUBLE_MS   = 320;
