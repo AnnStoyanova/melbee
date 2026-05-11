@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MelBee Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --honey:#F5C518;--honey-d:#C28A00;--amber:#FF9A1A;
+  --black:#0F0F10;--ink:#16161A;--ink2:#1E1E24;--ink3:#26262E;
+  --cream:#F4ECD8;--line:rgba(255,255,255,.07);
+  --green:#50C878;--red:#E05050;--blue:#4A90D9;
+  --font:'Nunito','Helvetica Neue',sans-serif;
+}
+body{font-family:var(--font);background:var(--black);color:var(--cream);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased;}
+
+/* Layout */
+.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh;}
+.sidebar{background:var(--ink);border-right:1px solid var(--line);padding:20px 14px;display:flex;flex-direction:column;gap:3px;position:sticky;top:0;height:100vh;overflow-y:auto;}
+.main{padding:28px 32px;overflow-y:auto;max-height:100vh;}
+
+/* Sidebar */
+.s-logo{padding:0 6px 18px;margin-bottom:10px;border-bottom:1px solid var(--line);}
+.s-logo-svg{opacity:.8;}
+.s-tag{font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--honey);margin-top:6px;display:block;text-transform:uppercase;}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:rgba(244,236,216,.5);border:1px solid transparent;background:none;width:100%;text-align:left;transition:all .14s;font-family:var(--font);}
+.nav-btn:hover{background:rgba(255,255,255,.05);color:var(--cream);}
+.nav-btn.active{background:rgba(245,197,24,.1);color:var(--honey);border-color:rgba(245,197,24,.25);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.nav-sep{height:1px;background:var(--line);margin:8px 0;}
+.s-footer{font-size:10px;color:rgba(244,236,216,.25);padding:0 6px;margin-top:auto;line-height:1.7;}
+
+/* Page header */
+.page-hd{margin-bottom:22px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+.page-title{font-size:26px;font-weight:900;color:var(--honey);letter-spacing:-.01em;}
+.page-sub{font-size:12px;font-weight:700;color:rgba(244,236,216,.4);margin-top:2px;}
+
+/* Cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:22px;}
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:14px 16px;}
+.card__val{font-size:30px;font-weight:900;color:var(--honey);line-height:1;}
+.card__lbl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:rgba(244,236,216,.4);margin-top:4px;}
+
+/* Panel */
+.panel{background:var(--ink2);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:16px;}
+.panel-hd{padding:13px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.panel-title{font-size:15px;font-weight:800;color:var(--cream);}
+
+/* Table */
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:rgba(244,236,216,.35);padding:10px 18px;text-align:left;border-bottom:1px solid var(--line);}
+td{padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.04);font-size:13px;font-weight:600;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:800;}
+.badge-gold {background:rgba(245,197,24,.12);color:var(--honey);border:1px solid rgba(245,197,24,.25);}
+.badge-green{background:rgba(80,200,120,.12);color:var(--green);border:1px solid rgba(80,200,120,.25);}
+.badge-red  {background:rgba(224,80,80,.12); color:var(--red);  border:1px solid rgba(224,80,80,.25);}
+.badge-blue {background:rgba(74,144,217,.12);color:var(--blue); border:1px solid rgba(74,144,217,.25);}
+
+/* Buttons */
+.btn{font-family:var(--font);font-size:13px;font-weight:800;padding:8px 16px;border:none;border-radius:9px;cursor:pointer;transition:all .14s;}
+.btn-primary{background:var(--honey);color:var(--black);}
+.btn-primary:hover{background:#FFD740;}
+.btn-ghost{background:transparent;color:var(--cream);border:1px solid rgba(255,255,255,.14);}
+.btn-ghost:hover{background:rgba(255,255,255,.06);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(224,80,80,.25);}
+.btn-danger:hover{background:rgba(224,80,80,.08);}
+.btn-sm{font-size:11px;padding:5px 11px;}
+.btn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+
+/* Forms */
+.form-section{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px;}
+.form-title{font-size:14px;font-weight:800;color:var(--honey);margin-bottom:14px;}
+.field-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;}
+.field-label{font-size:10px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(244,236,216,.4);}
+.field-input,.field-textarea,.field-select{width:100%;background:var(--ink3);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;color:var(--cream);font-family:var(--font);outline:none;transition:border-color .14s;}
+.field-input:focus,.field-textarea:focus,.field-select:focus{border-color:var(--honey);}
+.field-textarea{resize:vertical;min-height:70px;}
+.field-hint{font-size:11px;font-weight:700;color:rgba(244,236,216,.3);margin-top:3px;}
+
+/* Whitelist */
+.id-list{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;padding:14px 18px;}
+.id-row{display:flex;align-items:center;gap:10px;background:var(--ink3);border:1px solid var(--line);border-radius:9px;padding:8px 12px;}
+.id-row-val{flex:1;font-size:14px;font-weight:800;color:var(--honey);font-family:monospace;}
+.id-row-meta{font-size:11px;font-weight:700;color:rgba(244,236,216,.35);}
+.id-row-del{background:none;border:none;cursor:pointer;color:var(--red);font-size:18px;opacity:.5;padding:0 4px;transition:opacity .14s;font-family:var(--font);}
+.id-row-del:hover{opacity:1;}
+.id-add-row{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--line);}
+.id-add-input{flex:1;background:var(--ink3);border:1.5px solid rgba(255,255,255,.1);border-radius:9px;padding:9px 12px;font-size:14px;font-weight:800;color:var(--honey);font-family:monospace;outline:none;text-transform:uppercase;letter-spacing:.06em;}
+.id-add-input:focus{border-color:var(--honey);}
+.id-add-input::placeholder{color:rgba(244,236,216,.2);font-weight:700;text-transform:none;letter-spacing:0;}
+
+/* Sliders */
+.slider-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;}
+.slider-lbl{font-size:12px;font-weight:700;color:rgba(244,236,216,.55);width:170px;flex-shrink:0;}
+.slider-lbl span{display:block;font-size:10px;font-weight:700;color:rgba(244,236,216,.3);margin-top:1px;}
+input[type=range]{flex:1;accent-color:var(--honey);}
+.slider-val{font-size:14px;font-weight:800;color:var(--honey);width:44px;text-align:right;}
+
+/* Login screen */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--black);}
+.login-box{background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:36px 32px;width:340px;}
+.login-title{font-size:24px;font-weight:900;color:var(--honey);margin-bottom:6px;}
+.login-sub{font-size:13px;font-weight:700;color:rgba(244,236,216,.4);margin-bottom:24px;}
+.login-err{font-size:12px;font-weight:700;color:var(--red);margin-top:8px;min-height:18px;}
+
+/* Toast */
+.toast-wrap{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:999;pointer-events:none;}
+.toast{background:var(--green);color:#0a2010;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;transform:translateY(80px);opacity:0;transition:all .25s;}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* Empty */
+.empty{padding:36px 18px;text-align:center;color:rgba(244,236,216,.3);font-weight:700;font-size:13px;}
+
+/* Loading */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(245,197,24,.3);border-top-color:var(--honey);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+// admin/src/App.jsx — MelBee Admin Panel SPA
+
+const API = window.MELBEE_API_URL || null;
+
+const LS_A = {
+  get: (k,d) => { try { const v=localStorage.getItem(k); return v!==null?JSON.parse(v):d; } catch { return d; } },
+  set: (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch {} },
+};
+
+const DEFAULT_TEXTS_ADMIN = {
+  startTitle:'MELBEE GP',
+  startSub:'\u0422\u0430\u043f \u2014 \u0432\u0433\u043e\u0440\u0443 \u00b7 \u041f\u043e\u0434\u0432\u0456\u0439\u043d\u0438\u0439 \u0442\u0430\u043f \u2014 Turbo \u00b7 \u0417\u0431\u0438\u0440\u0430\u0439 \u043a\u0432\u0456\u0442\u0438!',
+  startBtn:'\u0413\u0440\u0430\u0442\u0438!',
+  startChip:'TELEGRAM MINI APP',
+  startEyebrow:'EPISODE 01',
+  startRecordLbl:'\u0420\u0435\u043a\u043e\u0440\u0434',
+  startGamesLbl:'\u0406\u0433\u043e\u0440',
+  affTitle:'AFFILIATE ID',
+  affSub:'\u0412\u0432\u0435\u0434\u0438 \u0441\u0432\u0456\u0439 affiliate-\u043a\u043e\u0434 \u0449\u043e\u0431 \u043e\u0442\u0440\u0438\u043c\u0430\u0442\u0438 \u0431\u043e\u043d\u0443\u0441.',
+  affFieldLabel:'YOUR PARTNER ID',
+  affHint:'\u0417\u043d\u0430\u0439\u0434\u0438 \u043a\u043e\u0434 \u0443 \u043b\u0438\u0441\u0442\u0456 \u0430\u0431\u043e \u0443 \u0441\u0432\u043e\u0433\u043e \u043c\u0435\u043d\u0435\u0434\u0436\u0435\u0440\u0430.',
+  affError:'Partner ID \u043d\u0435 \u0437\u043d\u0430\u0439\u0434\u0435\u043d\u043e. \u041f\u0435\u0440\u0435\u0432\u0456\u0440 \u043a\u043e\u0434.',
+  affBtnReady:'\u041f\u041e\u0407\u0425\u0410\u041b\u0418 \u2192',
+  affBtnEmpty:'\u0412\u0412\u0415\u0414\u0418 ID',
+  affBonusVal:'+500 \u041c\u0415\u0414\u0423',
+  affBonusSub:'\u0441\u0442\u0430\u0440\u0442\u043e\u0432\u0438\u0439 \u0431\u043e\u043d\u0443\u0441 \u0437\u0430 ID',
+  affPaste:'\u0412\u0441\u0442\u0430\u0432\u0438\u0442\u0438 \u0437 \u0431\u0443\u0444\u0435\u0440\u0430',
+  affSkip:'\u041f\u0420\u041e\u041f\u0423\u0421\u0422\u0418\u0422\u0418',
+  hudTurboLabel:'Turbo',
+  hudTurboActive:'TURBO!',
+  goEmoji:'X',
+  goTitle:'\u041a\u0406\u041d\u0415\u0426\u042c',
+  goStatTpl:'\u0420\u0456\u0432\u0435\u043d\u044c {level} \u00b7 {flowers} \u043a\u0432\u0456\u0442\u043e\u043a',
+  goRecord:'\u041d\u041e\u0412\u0418\u0419 \u0420\u0415\u041a\u041e\u0420\u0414!',
+  goLbBtn:'\u041b\u0456\u0434\u0435\u0440\u0431\u043e\u0440\u0434',
+  goRetryBtn:'\u0429\u0435 \u0440\u0430\u0437',
+  lbTitle:'\u041b\u0456\u0434\u0435\u0440\u0431\u043e\u0440\u0434',
+  lbEmpty:'\u0420\u0435\u043a\u043e\u0440\u0434\u0456\u0432 \u043d\u0435\u043c\u0430! \u0411\u0443\u0434\u044c \u043f\u0435\u0440\u0448\u0438\u043c',
+  lbMe:'\u0432\u0438',
+  playBtn:'\u0413\u0440\u0430\u0442\u0438 \u0437\u043d\u043e\u0432\u0443!',
+  crashMsg1:'\u041e\u0439, \u0432\u0440\u0456\u0437\u0430\u0432\u0441\u044f!',
+  crashMsg2:'\u041c\u0435\u0434 \u043d\u0435 \u0437\u0456\u0431\u0440\u0430\u0432!',
+  crashMsg3:'\u0411\u0434\u0436\u0456\u043b\u043a\u0430 \u0432\u043f\u0430\u043b\u0430!',
+  crashMsg4:'\u041f\u0430\u0440\u043a\u0430\u043d \u043f\u0435\u0440\u0435\u043c\u0456\u0433!',
+  crashMsg5:'\u0421\u043f\u0440\u043e\u0431\u0443\u0439 \u0449\u0435 \u0440\u0430\u0437!',
+  crashMsg6:'\u0422\u0443\u0440\u0431\u043e \u043d\u0435 \u0432\u0440\u044f\u0442\u0443\u0432\u0430\u043b\u043e!',
+};
+const DEFAULT_CONFIG_ADMIN = {
+  gravity:'0.22', jumpVy:'-5.0', baseSpeed:'1.4', speedInc:'0.12',
+  maxSpeed:'3.8', gapH:'210', lvlEvery:'5', turboBonus:'1.8', pipeW:'38',
+};
+const getMergedConfig = () => ({
+  ...DEFAULT_TEXTS_ADMIN, ...DEFAULT_CONFIG_ADMIN,
+  ...LS_A.get('mb_texts',{}), ...LS_A.get('mb_gameconfig',{}),
+});
+
+async function apiFetch(path, options = {}) {
+  if (API) {
+    const token = sessionStorage.getItem('mb_token');
+    const res = await fetch(API + path, {
+      headers: { 'Content-Type':'application/json', ...(token?{Authorization:`Bearer ${token}`}:{}) },
+      ...options, body: options.body ? JSON.stringify(options.body) : undefined,
+    });
+    if (!res.ok) { const e=await res.json().catch(()=>({error:res.statusText})); throw Object.assign(new Error(e.error||'API error'),{status:res.status}); }
+    return res.json();
+  }
+  return lsApi(path, options.method||'GET', options.body||{});
+}
+
+async function lsApi(path, method, body) {
+  if (path==='/api/admin/stats') {
+    const p=LS_A.get('mb_partner_ids',[]), lb=LS_A.get('mb_lb',[]);
+    const wl=LS_A.get('mb_allowed_ids',[]);
+    return {
+      stats:{ total_sessions:p.reduce((s,x)=>s+x.games,0), unique_partners:p.length,
+              top_score:p[0]?.bestScore||0, avg_score:p.length?Math.round(p.reduce((s,x)=>s+x.bestScore,0)/p.length):0 },
+      leaderboard:lb.slice(0,10).map(e=>({partner_id:e.name,score:e.score})),
+      partners:wl.map(id=>{const x=p.find(q=>q.id===id)||{};return{partner_id:id,is_active:true,games:x.games||0,best_score:x.bestScore||0,first_seen:x.firstSeen||new Date().toISOString(),last_seen:x.lastSeen||new Date().toISOString()};}),
+    };
+  }
+  if (path.startsWith('/api/admin/sessions')) {
+    const p=LS_A.get('mb_partner_ids',[]);
+    return {sessions:p.map((x,i)=>({id:i+1,partner_id:x.id,tg_username:x.tgUsername||'n/a',score:x.bestScore,level:1,flowers:x.bestScore,created_at:x.lastSeen}))};
+  }
+  if (path==='/api/admin/partners'&&method==='GET') {
+    const wl=LS_A.get('mb_allowed_ids',[]),p=LS_A.get('mb_partner_ids',[]);
+    return {partners:wl.map(id=>{const x=p.find(q=>q.id===id)||{};return{partner_id:id,is_active:true,games:x.games||0,best_score:x.bestScore||0,first_seen:x.firstSeen||new Date().toISOString(),last_seen:x.lastSeen||new Date().toISOString()};})};
+  }
+  if (path==='/api/admin/partners'&&method==='POST') {
+    const id=body.partnerId.toUpperCase(),list=LS_A.get('mb_allowed_ids',[]);
+    if(!list.includes(id)){list.push(id);LS_A.set('mb_allowed_ids',list);}
+    return {partner:{partner_id:id,is_active:true}};
+  }
+  if (path==='/api/admin/partners/bulk') {
+    const list=LS_A.get('mb_allowed_ids',[]);let added=0;
+    (body.partnerIds||[]).forEach(id=>{const u=id.toUpperCase();if(!list.includes(u)){list.push(u);added++;}});
+    LS_A.set('mb_allowed_ids',list);return{added,skipped:(body.partnerIds||[]).length-added};
+  }
+  if (path.startsWith('/api/admin/partners/')&&method==='DELETE') {
+    const id=decodeURIComponent(path.split('/').pop()).toUpperCase();
+    LS_A.set('mb_allowed_ids',LS_A.get('mb_allowed_ids',[]).filter(x=>x!==id));return{ok:true};
+  }
+  if (path.startsWith('/api/admin/partners/')&&method==='PATCH') {
+    const id=decodeURIComponent(path.split('/').pop()).toUpperCase();
+    let list=LS_A.get('mb_allowed_ids',[]);
+    body.isActive?(!list.includes(id)&&list.push(id)):list=list.filter(x=>x!==id);
+    LS_A.set('mb_allowed_ids',list);return{partner:{partner_id:id,is_active:body.isActive}};
+  }
+  if (path==='/api/admin/config'&&method==='PUT') {
+    const TK=Object.keys(DEFAULT_TEXTS_ADMIN),CK=Object.keys(DEFAULT_CONFIG_ADMIN),t={},c={};
+    Object.entries(body).forEach(([k,v])=>{if(TK.includes(k))t[k]=v;if(CK.includes(k))c[k]=v;});
+    LS_A.set('mb_texts',{...LS_A.get('mb_texts',{}), ...t});
+    LS_A.set('mb_gameconfig',{...LS_A.get('mb_gameconfig',{}), ...c});
+    return{ok:true,config:getMergedConfig()};
+  }
+  if (path==='/api/admin/config') return{config:getMergedConfig()};
+  return{ok:true};
+}
+
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ── Config ────────────────────────────────────────────────────
+const API = window.MELBEE_API_URL || 'https://api.yourdomain.com';
+
+// ── API client ────────────────────────────────────────────────
+async function apiFetch(path, options = {}) {
+  const token = sessionStorage.getItem('mb_token');
+  const res = await fetch(API + path, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    ...options,
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw Object.assign(new Error(err.error || 'API error'), { status: res.status });
+  }
+  return res.json();
+}
+
+// ── Toast system ──────────────────────────────────────────────
+let _toastFn = null;
+function useToastSystem() {
+  const [toasts, setToasts] = useState([]);
+  _toastFn = useCallback((msg, color = 'var(--green)') => {
+    const id = Date.now();
+    setToasts(t => [...t, { id, msg, color }]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 2500);
+  }, []);
+  return toasts;
+}
+function toast(msg, color) { _toastFn?.(msg, color); }
+
+// ── LOGO ──────────────────────────────────────────────────────
+const LOGO = `<svg width="120" height="21" viewBox="0 0 145 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 0.200012H4.104L9.048 16.136L14.04 0.200012H18L11.496 19H6.504L0 0.200012Z" fill="#FFBC00"/><path d="M19.9297 0.200012H24.0337V19H19.9297V0.200012Z" fill="#FFBC00"/><path d="M37.4297 7.8C39.1697 7.8 40.5137 8.288 41.4617 9.264C42.4097 10.224 42.8837 11.592 42.8837 13.368V19H38.9237V13.92C38.9237 13.008 38.7077 12.32 38.2757 11.856C37.8437 11.376 37.2437 11.136 36.4757 11.136C35.6597 11.136 35.0117 11.4 34.5317 11.928C34.0517 12.44 33.8117 13.184 33.8117 14.16V19H29.8517V8H33.6437L33.7637 9.648C34.2277 9.072 34.8197 8.624 35.5397 8.304C36.2597 7.968 37.0517 7.8 37.4297 7.8Z" fill="#FFBC00"/><path d="M57.4023 0.200012H61.4623V19H57.6703L57.5263 17.304C57.0463 17.928 56.4303 18.408 55.6783 18.744C54.9263 19.08 54.0943 19.248 53.1823 19.248C51.9583 19.248 50.8783 18.96 49.9423 18.384C49.0063 17.808 48.2703 17.016 47.7343 16.008C47.1983 14.984 46.9303 13.816 46.9303 12.504C46.9303 11.192 47.1983 10.032 47.7343 9.024C48.2703 8.0 49.0063 7.2 49.9423 6.624C50.8783 6.048 51.9583 5.76 53.1823 5.76C54.0623 5.76 54.8623 5.92 55.5823 6.24C56.3023 6.56 56.9103 7.016 57.4023 7.608V0.200012ZM54.1423 15.984C55.0783 15.984 55.8383 15.672 56.4223 15.048C57.0063 14.408 57.2983 13.56 57.2983 12.504C57.2983 11.448 57.0063 10.608 56.4223 9.984C55.8383 9.344 55.0783 9.024 54.1423 9.024C53.2063 9.024 52.4383 9.344 51.8383 9.984C51.2543 10.608 50.9623 11.448 50.9623 12.504C50.9623 13.56 51.2543 14.408 51.8383 15.048C52.4383 15.672 53.2063 15.984 54.1423 15.984Z" fill="#FFBC00"/><path d="M76.0078 7.8C78.4718 7.8 80.3438 8.528 81.6238 9.984C82.9038 11.44 83.5438 13.48 83.5438 16.104V19H72.3598V16.488H79.5598C79.4638 15.352 79.1078 14.456 78.4918 13.8C77.8758 13.128 77.0598 12.792 76.0438 12.792C75.0598 12.792 74.2518 13.112 73.6198 13.752C72.9878 14.392 72.5878 15.224 72.4198 16.248H68.3158C68.4838 14.216 69.2838 12.552 70.7158 11.256C72.1478 9.952 73.9118 7.8 76.0078 7.8Z" fill="#FFBC00"/><path d="M86.1953 8H90.1553L90.2993 9.792C90.7473 9.168 91.3313 8.672 92.0513 8.304C92.7873 7.936 93.6033 7.752 94.4993 7.752C95.3953 7.752 96.1793 7.936 96.8513 8.304L95.4113 11.76C94.7873 11.44 94.1153 11.28 93.3953 11.28C92.5313 11.28 91.8353 11.552 91.3073 12.096C90.7793 12.624 90.5153 13.4 90.5153 14.424V19H86.5553L86.1953 8Z" fill="#FFBC00"/><path fill-rule="evenodd" clip-rule="evenodd" d="M113 0H101C98.2386 0 96 2.23858 96 5V20C96 22.7614 98.2386 25 101 25H113C115.761 25 118 22.7614 118 20V5C118 2.23858 115.761 0 113 0ZM106.955 5.86C108.715 5.86 110.155 7.3 110.155 9.06C110.155 10.82 108.715 12.26 106.955 12.26C105.195 12.26 103.755 10.82 103.755 9.06C103.755 7.3 105.195 5.86 106.955 5.86ZM112.595 18.94H101.315C101.315 15.54 103.835 12.78 106.955 12.78C110.075 12.78 112.595 15.54 112.595 18.94Z" fill="#FFBC00"/><path d="M132 0H120C117.239 0 115 2.23858 115 5V20C115 22.7614 117.239 25 120 25H132C134.761 25 137 22.7614 137 20V5C137 2.23858 134.761 0 132 0Z" fill="#FFBC00"/><path d="M145 0H133C130.239 0 128 2.23858 128 5V20C128 22.7614 130.239 25 133 25H145C147.761 25 150 22.7614 150 20V5C150 2.23858 147.761 0 145 0Z" fill="#FFBC00"/></svg>`;
+
+// ── Shared components ─────────────────────────────────────────
+const Spinner = () => <span className="spinner"/>;
+
+const Empty = ({ children }) => <div className="empty">{children}</div>;
+
+function Table({ heads, rows, empty = 'Немає даних' }) {
+  return (
+    <table>
+      <thead><tr>{heads.map((h,i) => <th key={i}>{h}</th>)}</tr></thead>
+      <tbody>
+        {!rows?.length
+          ? <tr><td colSpan={heads.length}><Empty>{empty}</Empty></td></tr>
+          : rows
+        }
+      </tbody>
+    </table>
+  );
+}
+
+// ── LOGIN PAGE ────────────────────────────────────────────────
+function LoginPage({ onLogin }) {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
+
+  const submit = async () => {
+    setLoading(true); setError('');
+    try {
+      // Check against stored users first (localStorage mode)
+      const storedUsers = LS_A.get('mb_admin_users', []);
+      const foundUser = storedUsers.find(u => u.username === username);
+      // admin default: password 'admin', others: base64 encoded
+      const validDefault = username === 'admin' && password === (LS_A.get('mb_admin_pass','admin'));
+      const validStored  = foundUser && foundUser.passwordHash === btoa(password);
+      
+      if (validDefault || validStored) {
+        sessionStorage.setItem('mb_token', 'ls-mode');
+        // Ensure admin user exists in users list
+        if (!storedUsers.find(u => u.username === 'admin')) {
+          storedUsers.unshift({ id:1, username:'admin', role:'superadmin', assignedPartners:[], createdAt:new Date().toISOString() });
+          LS_A.set('mb_admin_users', storedUsers);
+        }
+        onLogin(username);
+      } else {
+        setError('Невірний логін або пароль');
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onKey = e => { if (e.key === 'Enter') submit(); };
+
+  return (
+    <div className="login-wrap">
+      <div className="login-box">
+        <div className="login-title">🐝 MelBee</div>
+        <div className="login-sub">Адміністративна панель</div>
+        <div className="field-group">
+          <label className="field-label">Логін</label>
+          <input className="field-input" value={username} onChange={e=>setUsername(e.target.value)} onKeyDown={onKey} autoFocus/>
+        </div>
+        <div className="field-group">
+          <label className="field-label">Пароль</label>
+          <input className="field-input" type="password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={onKey}/>
+        </div>
+        <button className="btn btn-primary" style={{width:'100%',marginTop:4}} onClick={submit} disabled={loading}>
+          {loading ? <Spinner/> : 'Увійти →'}
+        </button>
+        <div className="login-err">{error}</div>
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARD PAGE ────────────────────────────────────────────
+function DashboardPage() {
+  const [data, setData]     = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    apiFetch('/api/admin/stats')
+      .then(setData)
+      .catch(e => toast(e.message, 'var(--red)'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div style={{padding:40}}><Spinner/></div>;
+  const { stats = {}, leaderboard = [], partners = [] } = data || {};
+  const medals = ['🥇','🥈','🥉'];
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div>
+          <div className="page-title">📊 Дашборд</div>
+          <div className="page-sub">Загальна статистика гри</div>
+        </div>
+      </div>
+      <div className="cards">
+        <div className="card"><div className="card__val">{stats.unique_partners ?? 0}</div><div className="card__lbl">Партнерів</div></div>
+        <div className="card"><div className="card__val">{stats.total_sessions ?? 0}</div><div className="card__lbl">Ігор зіграно</div></div>
+        <div className="card"><div className="card__val">{stats.top_score ?? 0}</div><div className="card__lbl">Топ рекорд 🌸</div></div>
+        <div className="card"><div className="card__val">{stats.avg_score ?? 0}</div><div className="card__lbl">Середній рахунок</div></div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+        <div className="panel">
+          <div className="panel-hd"><span className="panel-title">🏆 Топ-10 лідерів</span></div>
+          <Table
+            heads={['#','Partner ID','Рекорд 🌸']}
+            empty="Ще немає ігор"
+            rows={leaderboard.map((e,i) => (
+              <tr key={i}>
+                <td>{medals[i]||i+1}</td>
+                <td><span className="badge badge-gold">{e.partner_id}</span></td>
+                <td style={{fontWeight:800,color:'var(--honey)'}}>{e.score}</td>
+              </tr>
+            ))}
+          />
+        </div>
+        <div className="panel">
+          <div className="panel-hd"><span className="panel-title">🐝 Активні партнери</span></div>
+          <Table
+            heads={['Partner ID','Ігор','Рекорд']}
+            empty="Немає партнерів"
+            rows={partners.slice(0,8).map((e,i) => (
+              <tr key={i}>
+                <td style={{fontWeight:800,color:'var(--honey)'}}>{e.partner_id}</td>
+                <td>{e.games}</td>
+                <td>{e.best_score} 🌸</td>
+              </tr>
+            ))}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── WHITELIST PAGE ────────────────────────────────────────────
+function WhitelistPage() {
+  const [partners, setPartners] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [input, setInput]       = useState('');
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkText, setBulkText] = useState('');
+
+  const load = () => {
+    setLoading(true);
+    apiFetch('/api/admin/partners')
+      .then(d => { setPartners(d.partners); setLoading(false); })
+      .catch(e => { toast(e.message,'var(--red)'); setLoading(false); });
+  };
+  useEffect(load, []);
+
+  const addOne = async () => {
+    const val = input.trim().toUpperCase();
+    if (!val || !/^[A-Z0-9_-]{2,32}$/.test(val)) { toast('Невірний формат ID','var(--red)'); return; }
+    try {
+      await apiFetch('/api/admin/partners', { method:'POST', body:{ partnerId: val } });
+      setInput(''); load(); toast(`✓ ${val} додано`);
+    } catch(e) { toast(e.message,'var(--red)'); }
+  };
+
+  const remove = async (id) => {
+    if (!confirm(`Видалити ${id}?`)) return;
+    try { await apiFetch(`/api/admin/partners/${id}`,{method:'DELETE'}); load(); toast(`Видалено ${id}`,'var(--amber)'); }
+    catch(e) { toast(e.message,'var(--red)'); }
+  };
+
+  const toggle = async (id, active) => {
+    try { await apiFetch(`/api/admin/partners/${id}`,{method:'PATCH',body:{isActive:active}}); load(); }
+    catch(e) { toast(e.message,'var(--red)'); }
+  };
+
+  const saveBulk = async () => {
+    const ids = bulkText.split(/[\n,;]+/).map(s=>s.trim().toUpperCase().replace(/^#/,'')).filter(s=>/^[A-Z0-9_-]{2,32}$/.test(s));
+    if (!ids.length) { toast('Не знайдено валідних ID','var(--red)'); return; }
+    try {
+      const r = await apiFetch('/api/admin/partners/bulk',{method:'POST',body:{partnerIds:ids}});
+      setBulkText(''); setBulkOpen(false); load();
+      toast(`✓ Додано ${r.added} ID${r.skipped?' ('+r.skipped+' пропущено)':''}`);
+    } catch(e) { toast(e.message,'var(--red)'); }
+  };
+
+  const exportTxt = () => {
+    const active = partners.filter(p=>p.is_active).map(p=>p.partner_id);
+    const a = document.createElement('a');
+    a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(active.join('\n'));
+    a.download = 'melbee_whitelist.txt'; a.click();
+  };
+
+  const isOpen = partners.length === 0;
+  const active = partners.filter(p=>p.is_active).length;
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div>
+          <div className="page-title">✅ Whitelist</div>
+          <div className="page-sub">Партнери що можуть входити в гру</div>
+        </div>
+        <span className={`badge ${isOpen?'badge-blue':'badge-green'}`}>
+          {isOpen ? '🔓 Відкритий режим' : `🔒 ${active} активних ID`}
+        </span>
+      </div>
+
+      {isOpen && (
+        <div style={{background:'rgba(74,144,217,.08)',border:'1px solid rgba(74,144,217,.25)',borderRadius:12,padding:'12px 16px',marginBottom:16,fontSize:13,fontWeight:700,color:'var(--blue)'}}>
+          ℹ️ Список порожній — будь-який коректний Partner ID пройде валідацію.
+          Додай перший ID щоб увімкнути суворий режим.
+        </div>
+      )}
+
+      <div className="panel">
+        <div className="panel-hd">
+          <span className="panel-title">Partner IDs ({partners.length})</span>
+          <div className="btn-row">
+            <button className="btn btn-ghost btn-sm" onClick={()=>setBulkOpen(v=>!v)}>📋 Масово</button>
+            <button className="btn btn-ghost btn-sm" onClick={exportTxt}>⬇ Експорт</button>
+          </div>
+        </div>
+        {loading ? <div style={{padding:24,textAlign:'center'}}><Spinner/></div> : (
+          partners.length === 0
+            ? <Empty>Додай перший Partner ID нижче</Empty>
+            : <div className="id-list">
+                {partners.map(p => (
+                  <div key={p.partner_id} className="id-row" style={{opacity:p.is_active?1:.5}}>
+                    <span className="id-row-val">#{p.partner_id}</span>
+                    <span className="id-row-meta">{p.games||0} ігор · {p.best_score||0} 🌸</span>
+                    <button className="btn btn-ghost btn-sm" onClick={()=>toggle(p.partner_id,!p.is_active)}>
+                      {p.is_active?'Деактивувати':'Активувати'}
+                    </button>
+                    <button className="id-row-del" onClick={()=>remove(p.partner_id)}>×</button>
+                  </div>
+                ))}
+              </div>
+        )}
+        <div className="id-add-row">
+          <input className="id-add-input" value={input} placeholder="PARTNER001"
+            onChange={e=>setInput(e.target.value.toUpperCase())}
+            onKeyDown={e=>e.key==='Enter'&&addOne()}
+            maxLength={32}/>
+          <button className="btn btn-primary" onClick={addOne}>+ Додати</button>
+        </div>
+      </div>
+
+      {bulkOpen && (
+        <div className="form-section">
+          <div className="form-title">Масове додавання</div>
+          <div className="field-group">
+            <label className="field-label">Partner IDs (кожен з нового рядка або через кому)</label>
+            <textarea className="field-textarea" value={bulkText} onChange={e=>setBulkText(e.target.value)}
+              placeholder={'PARTNER001\nPARTNER002\nPARTNER003'} style={{minHeight:120}}/>
+          </div>
+          <div className="btn-row">
+            <button className="btn btn-primary" onClick={saveBulk}>Додати всі</button>
+            <button className="btn btn-ghost" onClick={()=>setBulkOpen(false)}>Скасувати</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SESSIONS PAGE ─────────────────────────────────────────────
+function SessionsPage() {
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [filter, setFilter]     = useState('');
+
+  const load = (pid) => {
+    setLoading(true);
+    apiFetch(`/api/admin/sessions?limit=100${pid?`&partnerId=${pid}`:''}`)
+      .then(d => { setSessions(d.sessions); setLoading(false); })
+      .catch(e => { toast(e.message,'var(--red)'); setLoading(false); });
+  };
+  useEffect(() => load(), []);
+
+  const exportCSV = () => {
+    const rows = [['ID','Partner ID','TG Username','Score','Level','Flowers','Date'],
+      ...sessions.map(s=>[s.id,s.partner_id||'—',s.tg_username||'—',s.score,s.level,s.flowers,new Date(s.created_at).toLocaleString('uk')])];
+    const csv = rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+    a.download='melbee_sessions.csv'; a.click();
+  };
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div>
+          <div className="page-title">📋 Сесії</div>
+          <div className="page-sub">Всі зіграні партії</div>
+        </div>
+        <div className="btn-row">
+          <input className="field-input" style={{width:180}} value={filter}
+            onChange={e=>{setFilter(e.target.value.toUpperCase());}}
+            placeholder="Фільтр за Partner ID"
+            onKeyDown={e=>e.key==='Enter'&&load(filter||undefined)}/>
+          <button className="btn btn-ghost btn-sm" onClick={()=>load(filter||undefined)}>Шукати</button>
+          <button className="btn btn-ghost btn-sm" onClick={exportCSV}>⬇ CSV</button>
+        </div>
+      </div>
+      <div className="panel">
+        {loading ? <div style={{padding:24,textAlign:'center'}}><Spinner/></div> : (
+          <Table
+            heads={['Partner ID','TG','Рахунок','Рівень','Квіти','Дата']}
+            empty="Немає сесій"
+            rows={sessions.map((s,i) => (
+              <tr key={i}>
+                <td>{s.partner_id ? <span className="badge badge-gold">{s.partner_id}</span> : <span style={{color:'rgba(244,236,216,.3)'}}>—</span>}</td>
+                <td style={{color:'rgba(244,236,216,.55)'}}>{s.tg_username||'—'}</td>
+                <td style={{fontWeight:800,color:'var(--honey)'}}>{s.score}</td>
+                <td>{s.level}</td>
+                <td>{s.flowers} 🌸</td>
+                <td style={{fontSize:11,color:'rgba(244,236,216,.4)'}}>{new Date(s.created_at).toLocaleString('uk')}</td>
+              </tr>
+            ))}
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── TEXTS PAGE ────────────────────────────────────────────────
+const TEXT_FIELDS = [
+  { section:'Affiliate екран', fields:[
+    {key:'affTitle',      label:'Заголовок'},
+    {key:'affSub',        label:'Підзаголовок', textarea:true},
+    {key:'affFieldLabel', label:'Лейбл поля'},
+    {key:'affHint',       label:'Підказка'},
+    {key:'affError',      label:'Помилка при невірному ID'},
+    {key:'affBtnReady',   label:'Кнопка (ID введено)'},
+    {key:'affBtnEmpty',   label:'Кнопка (порожньо)'},
+    {key:'affBonusVal',   label:'Бонус значення'},
+    {key:'affBonusSub',   label:'Бонус підпис'},
+    {key:'affPaste',      label:'Кнопка вставки'},
+    {key:'affSkip',       label:'Пропустити'},
+  ]},
+  { section:'Стартовий екран', fields:[
+    {key:'startTitle',     label:'Заголовок'},
+    {key:'startSub',       label:'Підзаголовок', textarea:true},
+    {key:'startBtn',       label:'Кнопка Грати'},
+    {key:'startChip',      label:'Чіп'},
+    {key:'startEyebrow',   label:'Episode label'},
+    {key:'startRecordLbl', label:'Лейбл рекорду'},
+    {key:'startGamesLbl',  label:'Лейбл ігор'},
+  ]},
+  { section:'Game Over', fields:[
+    {key:'goEmoji',    label:'Emoji'},
+    {key:'goStatTpl',  label:'Шаблон ({level} та {flowers})'},
+    {key:'goRecord',   label:'Бейдж рекорду'},
+    {key:'goLbBtn',    label:'Кнопка Лідерборд'},
+    {key:'goRetryBtn', label:'Кнопка Ще раз'},
+  ]},
+  { section:'Повідомлення краша', fields:[
+    {key:'crashMsg1', label:'Варіант 1'},
+    {key:'crashMsg2', label:'Варіант 2'},
+    {key:'crashMsg3', label:'Варіант 3'},
+    {key:'crashMsg4', label:'Варіант 4'},
+    {key:'crashMsg5', label:'Варіант 5'},
+    {key:'crashMsg6', label:'Варіант 6'},
+  ]},
+  { section:'Лідерборд', fields:[
+    {key:'lbTitle',  label:'Заголовок'},
+    {key:'lbEmpty',  label:'Порожній стан'},
+    {key:'lbMe',     label:'Префікс гравця'},
+    {key:'playBtn',  label:'Кнопка Грати знову'},
+  ]},
+  { section:'HUD', fields:[
+    {key:'hudTurboLabel',  label:'Лейбл турбо'},
+    {key:'hudTurboActive', label:'Активний турбо'},
+  ]},
+];
+
+function TextsPage() {
+  const [values, setValues] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
+
+  useEffect(() => {
+    apiFetch('/api/admin/config')
+      .then(d => { setValues(d.config); setLoading(false); })
+      .catch(e => { toast(e.message,'var(--red)'); setLoading(false); });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/admin/config', { method:'PUT', body: values });
+      toast('✓ Тексти збережено');
+    } catch(e) { toast(e.message,'var(--red)'); }
+    finally { setSaving(false); }
+  };
+
+  if (loading) return <div style={{padding:40}}><Spinner/></div>;
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div><div className="page-title">✏️ Тексти</div><div className="page-sub">Зміни вступають в силу одразу</div></div>
+        <button className="btn btn-primary" onClick={save} disabled={saving}>{saving?<Spinner/>:'💾 Зберегти'}</button>
+      </div>
+      {TEXT_FIELDS.map(({ section, fields }) => (
+        <div key={section} className="form-section">
+          <div className="form-title">{section}</div>
+          {fields.map(({ key, label, textarea }) => (
+            <div key={key} className="field-group">
+              <label className="field-label">{label} <span style={{opacity:.5,textTransform:'none',letterSpacing:0}}>({key})</span></label>
+              {textarea
+                ? <textarea className="field-textarea" value={values[key]||''} onChange={e=>setValues(v=>({...v,[key]:e.target.value}))}/>
+                : <input    className="field-input"    value={values[key]||''} onChange={e=>setValues(v=>({...v,[key]:e.target.value}))}/>
+              }
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── GAME CONFIG PAGE ──────────────────────────────────────────
+const SLIDERS = [
+  { group:'Фізика', items:[
+    { key:'gravity',   label:'Гравітація', hint:'Сила тяжіння вниз', min:.05, max:.6, step:.01 },
+    { key:'jumpVy',    label:'Сила стрибка', hint:'Negative = вгору', min:-10, max:-2, step:.1 },
+  ]},
+  { group:'Швидкість', items:[
+    { key:'baseSpeed', label:'Початкова швидкість', hint:'px/frame', min:.5, max:4, step:.1 },
+    { key:'speedInc',  label:'Прискорення на рівень', hint:'px/frame за рівень', min:.01, max:.5, step:.01 },
+    { key:'maxSpeed',  label:'Максимальна швидкість', hint:'px/frame без Турбо', min:2, max:10, step:.1 },
+  ]},
+  { group:'Перешкоди', items:[
+    { key:'gapH',      label:'Зазор між заборами', hint:'px', min:100, max:400, step:5 },
+    { key:'lvlEvery',  label:'Квіток для нового рівня', hint:'штук', min:1, max:50, step:1 },
+  ]},
+];
+
+function GameConfigPage() {
+  const [values, setValues] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
+
+  useEffect(() => {
+    apiFetch('/api/admin/config')
+      .then(d => { setValues(d.config); setLoading(false); })
+      .catch(e => { toast(e.message,'var(--red)'); setLoading(false); });
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiFetch('/api/admin/config', { method:'PUT', body: values });
+      toast('✓ Параметри збережено. Перезапусти гру.');
+    } catch(e) { toast(e.message,'var(--red)'); }
+    finally { setSaving(false); }
+  };
+
+  if (loading) return <div style={{padding:40}}><Spinner/></div>;
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div><div className="page-title">🎮 Параметри гри</div><div className="page-sub">Вступають в силу при наступному запуску гри гравцем</div></div>
+        <button className="btn btn-primary" onClick={save} disabled={saving}>{saving?<Spinner/>:'💾 Зберегти'}</button>
+      </div>
+      {SLIDERS.map(({ group, items }) => (
+        <div key={group} className="form-section">
+          <div className="form-title">{group}</div>
+          {items.map(({ key, label, hint, min, max, step }) => {
+            const val = parseFloat(values[key] ?? 0);
+            return (
+              <div key={key} className="slider-row">
+                <div className="slider-lbl">{label}<span>{hint}</span></div>
+                <input type="range" min={min} max={max} step={step} value={val}
+                  onChange={e => setValues(v => ({...v, [key]: e.target.value}))}/>
+                <div className="slider-val">{val}</div>
+              </div>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── SETTINGS PAGE ─────────────────────────────────────────────
+function SettingsPage({ username, onLogout }) {
+  const clear = (key, name) => {
+    if (!confirm(`Очистити "${name}"? Дія незворотна.`)) return;
+    // Note: server-side clear would need API endpoint
+    toast(`⚠️ "${name}" — потрібен API endpoint для очищення`, 'var(--amber)');
+  };
+
+  return (
+    <div>
+      <div className="page-hd"><div><div className="page-title">⚙️ Налаштування</div></div></div>
+      <div className="form-section">
+        <div className="form-title">Сесія</div>
+        <p style={{fontSize:13,fontWeight:700,color:'rgba(244,236,216,.5)',marginBottom:14}}>
+          Увійшли як <strong style={{color:'var(--honey)'}}>{username}</strong>
+        </p>
+        <button className="btn btn-danger" onClick={onLogout}>Вийти</button>
+      </div>
+      <div className="form-section">
+        <div className="form-title">Інформація</div>
+        <p style={{fontSize:13,fontWeight:600,color:'rgba(244,236,216,.45)',lineHeight:1.7}}>
+          API: <code style={{color:'var(--honey)',background:'rgba(245,197,24,.1)',padding:'1px 6px',borderRadius:4}}>{API}</code><br/>
+          Всі дані зберігаються в PostgreSQL на вашому VPS.<br/>
+          JWT токен дійсний 12 годин, потім потрібно увійти знову.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+// ── USERS PAGE (superadmin only) ─────────────────────────────
+function UsersPage({ currentUser }) {
+  const [users, setUsers]       = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm]         = useState({ username:'', password:'', role:'manager', assignedPartners:[] });
+  const [partnerInput, setPartnerInput] = useState('');
+  const [saving, setSaving]     = useState(false);
+
+  const load = () => {
+    setLoading(true);
+    // Load from localStorage
+    const stored = LS_A.get('mb_admin_users', [
+      { id:1, username:'admin', role:'superadmin', assignedPartners:[], createdAt: new Date().toISOString() }
+    ]);
+    setUsers(stored);
+    setLoading(false);
+  };
+  useEffect(load, []);
+
+  const saveUser = () => {
+    if (!form.username.trim() || !form.password.trim()) {
+      toast('Введи логін та пароль', 'var(--red)'); return;
+    }
+    if (form.username.length < 3) {
+      toast('Логін мінімум 3 символи', 'var(--red)'); return;
+    }
+    setSaving(true);
+    const stored = LS_A.get('mb_admin_users', []);
+    if (stored.find(u => u.username === form.username)) {
+      toast('Такий логін вже існує', 'var(--red)'); setSaving(false); return;
+    }
+    const newUser = {
+      id: Date.now(),
+      username: form.username.trim(),
+      passwordHash: btoa(form.password), // base64 — для localStorage достатньо
+      role: form.role,
+      assignedPartners: form.assignedPartners,
+      createdAt: new Date().toISOString(),
+    };
+    stored.push(newUser);
+    LS_A.set('mb_admin_users', stored);
+    setForm({ username:'', password:'', role:'manager', assignedPartners:[] });
+    setShowForm(false);
+    setSaving(false);
+    load();
+    toast(`✓ Юзер ${newUser.username} створено`);
+  };
+
+  const deleteUser = (id, username) => {
+    if (username === 'admin') { toast('Не можна видалити головного адміна', 'var(--red)'); return; }
+    if (!confirm(`Видалити юзера ${username}?`)) return;
+    const stored = LS_A.get('mb_admin_users', []).filter(u => u.id !== id);
+    LS_A.set('mb_admin_users', stored);
+    load();
+    toast(`Юзера ${username} видалено`, 'var(--amber)');
+  };
+
+  const addPartnerToForm = () => {
+    const val = partnerInput.trim().toUpperCase();
+    if (!val || !/^[A-Z0-9_-]{2,32}$/.test(val)) { toast('Невірний формат Partner ID', 'var(--red)'); return; }
+    if (form.assignedPartners.includes(val)) { toast('Вже додано', 'var(--amber)'); return; }
+    setForm(f => ({ ...f, assignedPartners: [...f.assignedPartners, val] }));
+    setPartnerInput('');
+  };
+  const removePartnerFromForm = (p) => setForm(f => ({ ...f, assignedPartners: f.assignedPartners.filter(x => x !== p) }));
+
+  const ROLES = { superadmin:'Суперадмін', manager:'Менеджер' };
+  const ROLE_COLORS = { superadmin:'badge-gold', manager:'badge-blue' };
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div>
+          <div className="page-title">👥 Юзери адмінки</div>
+          <div className="page-sub">Управління доступом до панелі</div>
+        </div>
+        <button className="btn btn-primary" onClick={() => setShowForm(v => !v)}>
+          {showForm ? '✕ Скасувати' : '+ Новий юзер'}
+        </button>
+      </div>
+
+      {/* ── New user form ── */}
+      {showForm && (
+        <div className="form-section" style={{marginBottom:20}}>
+          <div className="form-title">Новий юзер</div>
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
+            <div className="field-group">
+              <label className="field-label">Логін</label>
+              <input className="field-input" value={form.username}
+                onChange={e => setForm(f => ({...f, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g,'')}))}
+                placeholder="manager_anna" autoComplete="off"/>
+            </div>
+            <div className="field-group">
+              <label className="field-label">Пароль</label>
+              <input className="field-input" type="password" value={form.password}
+                onChange={e => setForm(f => ({...f, password: e.target.value}))}
+                placeholder="мінімум 6 символів" autoComplete="new-password"/>
+            </div>
+          </div>
+          <div className="field-group">
+            <label className="field-label">Роль</label>
+            <select className="field-select" value={form.role}
+              onChange={e => setForm(f => ({...f, role: e.target.value}))}>
+              <option value="superadmin">Суперадмін — бачить все, керує юзерами</option>
+              <option value="manager">Менеджер — тільки свої Partner IDs</option>
+            </select>
+          </div>
+          {form.role === 'manager' && (
+            <div className="field-group">
+              <label className="field-label">Partner IDs цього менеджера</label>
+              <div style={{display:'flex', gap:8, marginBottom:8}}>
+                <input className="field-input" value={partnerInput}
+                  onChange={e => setPartnerInput(e.target.value.toUpperCase())}
+                  onKeyDown={e => e.key==='Enter' && addPartnerToForm()}
+                  placeholder="PARTNER001" style={{fontFamily:'monospace', fontWeight:800}}/>
+                <button className="btn btn-ghost" onClick={addPartnerToForm}>+</button>
+              </div>
+              {form.assignedPartners.length > 0 && (
+                <div style={{display:'flex', flexWrap:'wrap', gap:6}}>
+                  {form.assignedPartners.map(p => (
+                    <span key={p} style={{display:'inline-flex', alignItems:'center', gap:5, background:'rgba(245,197,24,.1)', border:'1px solid rgba(245,197,24,.25)', borderRadius:6, padding:'3px 10px', fontSize:12, fontWeight:800, color:'var(--honey)', fontFamily:'monospace'}}>
+                      #{p}
+                      <button onClick={() => removePartnerFromForm(p)} style={{background:'none',border:'none',cursor:'pointer',color:'var(--red)',fontSize:14,padding:0,lineHeight:1}}>×</button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <div className="field-hint" style={{marginTop:6}}>
+                Менеджер буде бачити статистику тільки цих партнерів. Якщо не вказано — бачить всіх.
+              </div>
+            </div>
+          )}
+          <div className="btn-row" style={{marginTop:4}}>
+            <button className="btn btn-primary" onClick={saveUser} disabled={saving}>
+              {saving ? '...' : 'Створити юзера'}
+            </button>
+            <button className="btn btn-ghost" onClick={() => setShowForm(false)}>Скасувати</button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Users table ── */}
+      <div className="panel">
+        <div className="panel-hd"><span className="panel-title">Всі юзери ({users.length})</span></div>
+        {loading ? <div style={{padding:24,textAlign:'center'}}><Spinner/></div> : (
+          <Table
+            heads={['Логін','Роль','Partner IDs','Дата створення','Дії']}
+            empty="Немає юзерів"
+            rows={users.map(u => (
+              <tr key={u.id}>
+                <td style={{fontWeight:800}}>
+                  {u.username}
+                  {u.username === currentUser && <span className="badge badge-green" style={{marginLeft:8}}>Це ви</span>}
+                </td>
+                <td><span className={`badge ${ROLE_COLORS[u.role]||'badge-blue'}`}>{ROLES[u.role]||u.role}</span></td>
+                <td>
+                  {u.role === 'superadmin'
+                    ? <span style={{color:'rgba(244,236,216,.35)',fontSize:12}}>Всі</span>
+                    : u.assignedPartners?.length
+                      ? <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
+                          {u.assignedPartners.map(p => (
+                            <span key={p} style={{fontSize:11,fontWeight:800,color:'var(--honey)',fontFamily:'monospace'}}>#{p}</span>
+                          ))}
+                        </div>
+                      : <span style={{color:'rgba(244,236,216,.35)',fontSize:12}}>Всі</span>
+                  }
+                </td>
+                <td style={{fontSize:11,color:'rgba(244,236,216,.4)'}}>
+                  {new Date(u.createdAt).toLocaleDateString('uk')}
+                </td>
+                <td>
+                  {u.username !== 'admin' && u.username !== currentUser && (
+                    <button className="btn btn-danger btn-sm" onClick={() => deleteUser(u.id, u.username)}>
+                      Видалити
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          />
+        )}
+      </div>
+
+      {/* ── Info box ── */}
+      <div className="form-section" style={{background:'rgba(74,144,217,.06)',borderColor:'rgba(74,144,217,.2)'}}>
+        <div className="form-title" style={{color:'var(--blue)'}}>ℹ️ Як працюють ролі</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,fontSize:13,fontWeight:600,color:'rgba(244,236,216,.6)',lineHeight:1.6}}>
+          <div>
+            <div style={{color:'var(--honey)',fontWeight:800,marginBottom:4}}>⭐ Суперадмін</div>
+            Бачить всіх партнерів і всю статистику<br/>
+            Може додавати/видаляти юзерів<br/>
+            Може змінювати тексти і параметри гри<br/>
+            Повний доступ до всіх розділів
+          </div>
+          <div>
+            <div style={{color:'var(--blue)',fontWeight:800,marginBottom:4}}>👤 Менеджер</div>
+            Бачить тільки призначених партнерів<br/>
+            Може додавати нові Partner IDs<br/>
+            Не може змінювати тексти і параметри<br/>
+            Не бачить інших юзерів
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+function TgUsersPage() {
+  const users = LS_A.get('mb_tg_users', []);
+  const medals = ['#1','#2','#3'];
+
+  const exportCSV = () => {
+    if (!users.length) { toast('No data', 'var(--red)'); return; }
+    const rows = [
+      ['TG ID','Username','First Name','Last Name','Partner ID','Games','Best Score','First Seen','Last Seen'],
+      ...users.map(u => [
+        u.id, u.username||'-', u.firstName||'-', u.lastName||'-',
+        u.partnerId||'-', u.games, u.bestScore,
+        new Date(u.firstSeen).toLocaleString('uk'),
+        new Date(u.lastSeen).toLocaleString('uk'),
+      ])
+    ];
+    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+    a.download = 'melbee_tg_users.csv'; a.click();
+  };
+
+  return (
+    <div>
+      <div className="page-hd">
+        <div>
+          <div className="page-title">TG Юзери</div>
+          <div className="page-sub">Всі гравці з Telegram ID</div>
+        </div>
+        <button className="btn btn-ghost btn-sm" onClick={exportCSV}>Export CSV</button>
+      </div>
+      <div className="cards">
+        <div className="card"><div className="card__val">{users.length}</div><div className="card__lbl">Унікальних</div></div>
+        <div className="card"><div className="card__val">{users.filter(u=>u.partnerId).length}</div><div className="card__lbl">З Partner ID</div></div>
+        <div className="card"><div className="card__val">{users.reduce((s,u)=>s+(u.games||0),0)}</div><div className="card__lbl">Ігор</div></div>
+      </div>
+      <div className="panel">
+        <div className="panel-hd"><span className="panel-title">Список ({users.length})</span></div>
+        {users.length === 0
+          ? <div className="empty">Дані збережуться після першої гри в Telegram.</div>
+          : <table>
+              <thead><tr>
+                <th>#</th><th>TG ID</th><th>Username</th><th>Ім&apos;я</th>
+                <th>Partner ID</th><th>Ігор</th><th>Рекорд</th><th>Перший вхід</th>
+              </tr></thead>
+              <tbody>
+                {users.sort((a,b)=>(b.bestScore||0)-(a.bestScore||0)).map((u,i) => (
+                  <tr key={u.id}>
+                    <td style={{color:'rgba(244,236,216,.4)'}}>{i+1}</td>
+                    <td><code style={{fontSize:11,color:'rgba(244,236,216,.5)',background:'rgba(255,255,255,.05)',padding:'2px 6px',borderRadius:4}}>{u.id}</code></td>
+                    <td>{u.username ? <span style={{color:'var(--blue)'}}>@{u.username}</span> : <span style={{opacity:.3}}>-</span>}</td>
+                    <td>{[u.firstName,u.lastName].filter(Boolean).join(' ')||<span style={{opacity:.3}}>-</span>}</td>
+                    <td>{u.partnerId ? <span className="badge badge-gold">#{u.partnerId}</span> : <span style={{opacity:.3,fontSize:12}}>-</span>}</td>
+                    <td>{u.games||0}</td>
+                    <td style={{fontWeight:800,color:'var(--honey)'}}>{u.bestScore||0}</td>
+                    <td style={{fontSize:11,color:'rgba(244,236,216,.4)'}}>{u.firstSeen?new Date(u.firstSeen).toLocaleDateString('uk'):'-'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+        }
+      </div>
+    </div>
+  );
+}
+
+// ── ROOT APP ──────────────────────────────────────────────────
+const SUPERADMIN_PAGES = [
+  { id:'dashboard',  icon:'📊', label:'Дашборд' },
+  { id:'whitelist',  icon:'✅', label:'Whitelist' },
+  { id:'sessions',   icon:'📋', label:'Сесії' },
+  { sep: true },
+  { id:'texts',      icon:'✏️',  label:'Тексти' },
+  { id:'gameconfig', icon:'🎮', label:'Параметри гри' },
+  { sep: true },
+  { id:'users',      icon:'👥', label:'Юзери' },
+  { id:'tgusers',    icon:'✈️',  label:'TG Юзери' },
+  { id:'settings',   icon:'⚙️',  label:'Налаштування' },
+];
+
+const MANAGER_PAGES = [
+  { id:'dashboard',  icon:'📊', label:'Дашборд' },
+  { id:'whitelist',  icon:'✅', label:'Whitelist' },
+  { id:'sessions',   icon:'📋', label:'Сесії' },
+];
+
+function App() {
+  const [authed, setAuthed]   = useState(!!sessionStorage.getItem('mb_token'));
+  const [user, setUser]       = useState(sessionStorage.getItem('mb_user') || '');
+  const [page, setPage]       = useState('dashboard');
+  const toasts                = useToastSystem();
+
+  const onLogin = (username) => {
+    sessionStorage.setItem('mb_user', username);
+    setUser(username); setAuthed(true);
+  };
+  const onLogout = () => {
+    sessionStorage.removeItem('mb_token'); sessionStorage.removeItem('mb_user');
+    setAuthed(false); setUser('');
+  };
+
+  if (!authed) return <LoginPage onLogin={onLogin}/>;
+
+  const role = LS_A.get('mb_admin_users', []).find(u => u.username === user)?.role || 'superadmin';
+  const isSuperadmin = role === 'superadmin';
+  const PAGES = isSuperadmin ? SUPERADMIN_PAGES : MANAGER_PAGES;
+
+  // Get assigned partners for manager role filtering
+  const assignedPartners = !isSuperadmin
+    ? (LS_A.get('mb_admin_users', []).find(u => u.username === user)?.assignedPartners || [])
+    : [];
+
+  const renderPage = () => {
+    switch(page) {
+      case 'dashboard':  return <DashboardPage assignedPartners={assignedPartners}/>;
+      case 'whitelist':  return <WhitelistPage assignedPartners={assignedPartners}/>;
+      case 'sessions':   return <SessionsPage  assignedPartners={assignedPartners}/>;
+      case 'texts':      return isSuperadmin ? <TextsPage/> : null;
+      case 'gameconfig': return isSuperadmin ? <GameConfigPage/> : null;
+      case 'users':      return isSuperadmin ? <UsersPage currentUser={user}/> : null;
+      case 'tgusers':    return isSuperadmin ? <TgUsersPage/> : null;
+      case 'settings':   return <SettingsPage username={user} role={role} onLogout={onLogout}/>;
+      default:           return null;
+    }
+  };
+
+  return (
+    <>
+      <div className="layout">
+        <aside className="sidebar">
+          <div className="s-logo">
+            <div className="s-logo-svg" dangerouslySetInnerHTML={{__html: LOGO}}/>
+            <span className="s-tag">Admin Panel</span>
+          </div>
+          {PAGES.map((p, i) =>
+            p.sep
+              ? <div key={i} className="nav-sep"/>
+              : <button key={p.id} className={`nav-btn${page===p.id?' active':''}`} onClick={()=>setPage(p.id)}>
+                  <span className="nav-icon">{p.icon}</span> {p.label}
+                </button>
+          )}
+          <div className="s-footer">
+            MelBee Admin v2.0<br/>
+            <span style={{color:'var(--honey)',fontWeight:800}}>{isSuperadmin ? '⭐ Суперадмін' : '👤 Менеджер'}</span><br/>
+            <span style={{opacity:.5}}>{user}</span>
+          </div>
+        </aside>
+        <main className="main">{renderPage()}</main>
+      </div>
+
+      {/* Toast notifications */}
+      <div className="toast-wrap">
+        {toasts.map(t => (
+          <div key={t.id} className="toast show" style={{background:t.color}}>{t.msg}</div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+
+</script>
+</body>
+</html>
