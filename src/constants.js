@@ -27,7 +27,7 @@ const DEFAULT_TEXTS = {
   startTitle:    'MelBee',
   startSub:      'Tap - \u2b06\ufe0f Up! \u00b7 Double tap - \u26a1 Turbo mode \u00b7 \ud83c\udf38 - Collect flowers',
   startBtn:      '\ud83c\udf6f Play!',
-  startChip:     'TELEGRAM MINI APP',
+  startChip:     'MELBET MINI APP',
   startEyebrow:  '',               // прибрати
   startRecordLbl:'Record \ud83c\udf38',
   startGamesLbl: 'Games',
