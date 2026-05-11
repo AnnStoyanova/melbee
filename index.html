@@ -29,28 +29,16 @@
   --r:          'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 html, body {
-  width: 100%;
-  height: 100%;
-  height: 100dvh;
-  overflow: hidden;
-  background: #1B1B20;
+  width: 100%; height: 100%; overflow: hidden;
+  background: #0B0B0E;
   font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   display: flex; align-items: center; justify-content: center;
 }
 #root {
-  width: 100%;
-  height: 100%;
-  max-width: 480px;
+  width: 360px; height: 640px;
   position: relative; overflow: hidden;
   background: #1B1B20;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-#root canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: contain;
 }
 
 /* ─── Typography ─── */
@@ -307,23 +295,10 @@ html, body {
 /* ─── AFFILIATE ─── */
 .aff {
   background: linear-gradient(180deg, #1A1A22 0%, #0F0F10 100%);
-  padding: 24px 22px 28px;
-  justify-content: space-between;
+  padding: 0 22px 20px;
+  justify-content: flex-start;
   position: relative;
   overflow: hidden;
-}
-.aff__group-top,
-.aff__group-bottom {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.aff__group-top {
-  flex: 0 0 auto;
-}
-.aff__group-bottom {
-  flex: 0 0 auto;
 }
 .aff__bg-hex {
   position: absolute; pointer-events: none;
@@ -341,28 +316,23 @@ html, body {
 .aff__hero {
   width: 100%;
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 12px;
+  height: 90px;
 }
-.aff__bee-wrap {
-  animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 16px 24px rgba(0,0,0,.55));
-}
+.aff__bee-wrap { animation: float 3s ease-in-out infinite; }
 .aff__eyebrow {
   font-size: 10px; font-weight: 800; letter-spacing: .24em;
   text-transform: uppercase; color: var(--honey);
   margin-bottom: 2px;
 }
 .aff__title {
-  font-size: 44px; font-weight: 900; line-height: .92;
-  color: var(--cream); margin-bottom: 8px;
-  text-align: center;
+  font-size: 36px; font-weight: 900; line-height: .92;
+  color: var(--cream); margin-bottom: 6px;
 }
 .aff__title span { color: var(--honey); }
 .aff__sub {
   font-size: 13px; font-weight: 700;
   color: rgba(244,236,216,.5); line-height: 1.45;
-  margin-bottom: 18px;
-  text-align: center;
+  margin-bottom: 10px;
 }
 .aff__field {
   width: 100%;
@@ -388,7 +358,7 @@ html, body {
 }
 .aff__input::placeholder { color: rgba(244,236,216,.2); }
 .aff__check svg path { stroke: var(--green); }
-.aff__hint { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.35); margin-bottom: 10px; }
+.aff__hint { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.35); min-height: 16px; margin-bottom: 6px; }
 .aff__hint--err { color: #E05050; }
 .aff__bonus {
   width: 100%;
@@ -396,19 +366,14 @@ html, body {
   background: rgba(245,197,24,.08);
   border: 1px solid rgba(245,197,24,.2);
   border-radius: 12px;
-  padding: 12px 14px;
-  margin-bottom: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
 }
 .aff__bonus-icon { flex-shrink: 0; }
 .aff__bonus-copy { display: flex; flex-direction: column; gap: 1px; }
 .aff__bonus-copy b { font-size: 14px; font-weight: 900; color: var(--honey); letter-spacing: .04em; }
 .aff__bonus-copy span { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.45); }
-.aff__cta {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+.aff__cta { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .aff__submit.is-disabled { opacity: .45; }
 .aff__paste {
   background: none; border: none; cursor: pointer;
