@@ -218,13 +218,13 @@ function GamePlay({ onGameOver }) {
         onMouseDown={e => { if (e.pointerType !== 'touch') handleTap(); }}/>
       <div className="hud">
         <div className="hud__score">{score}</div>
-        <div className="hud__level">Рівень {level}</div>
+        <div className="hud__level">Level {level}</div>
       </div>
       <div className="turbo">
-        <div className="turbo__label">⚡ Турбо</div>
+        <div className="turbo__label">⚡ Turbo </div>
         <div className="turbo__track"><div className="turbo__fill" style={{ width: (turbo/TURBO_MAX*100)+'%' }}/></div>
       </div>
-      {turboOn && <div className="turbo__active">🚀 ТУРБО!</div>}
+      {turboOn && <div className="turbo__active">🚀 Turbo!</div>}
       <div ref={overlayRef} style={{ position:'absolute', inset:0, pointerEvents:'none', zIndex:25 }}/>
     </div>
   );
