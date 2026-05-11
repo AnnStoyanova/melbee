@@ -8,7 +8,12 @@ function App() {
   const [games,   setGames]   = useState(() => LS.get('mb_games', 0));
   const [affId,   setAffId]   = useState(() => LS.get('mb_affid', ''));
 
-  const play = () => { setGameKey(k => k+1); setScreen('game'); startBgMusic(); };
+  const play = () => {
+    applyConfig();           // підтягує параметри з адмінки перед кожною грою
+    setGameKey(k => k + 1);
+    setScreen('game');
+    startBgMusic();
+  };
 
   const onAffNext = id => { LS.set('mb_affid', id); setAffId(id); setScreen('start'); };
   const onAffSkip = ()  => setScreen('start');
@@ -18,9 +23,17 @@ function App() {
     if (isNew) { LS.set('mb_best', sc); setBest(sc); }
     const g = LS.get('mb_games', 0) + 1;
     LS.set('mb_games', g); setGames(g);
-    lbAdd(sc, LS.get('mb_affid', ''));
-    setOver({ score:sc, level:st.level, flowers:st.flowers, isNew,
-              msg: CRASH_MSGS[Math.floor(Math.random()*CRASH_MSGS.length)] });
+    lbAdd(sc, LS.get('mb_affid', ''), {
+      id:        tgUser?.id,
+      username:  tgUser?.username,
+      firstName: tgUser?.first_name,
+      lastName:  tgUser?.last_name,
+    });
+    const msgs = getCrashMsgs();
+    setOver({
+      score: sc, level: st.level, flowers: st.flowers, isNew,
+      msg: msgs[Math.floor(Math.random() * msgs.length)],
+    });
     setScreen('over');
   };
 
