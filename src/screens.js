@@ -52,7 +52,7 @@ function AffiliateScreen({ onNext, onSkip }) {
         })}
       </svg>
       <div className="aff__hero">
-        <div className="aff__bee-wrap"><BeeBolid size={180} number="1"/></div>
+        <div className="aff__bee-wrap"><Bee size={170} variant="fly"/></div>
       </div>
       <h1 className="aff__title">{T.affTitle}</h1>
       <p className="aff__sub">{T.affSub}</p>
@@ -101,7 +101,7 @@ function StartScreen({ onPlay, best, games }) {
       <div className="start__logo" dangerouslySetInnerHTML={{ __html: LOGO_SVG }}/>
       <div className="start__chip">{T.startChip}</div>
       <div className="start__hero">
-        <div className="start__bolid"><BeeBolid size={200} number="1"/></div>
+        <div className="start__bolid"><Bee size={200} variant="fly"/></div>
       </div>
       {T.startEyebrow && <div className="start__eyebrow">{T.startEyebrow}</div>}
       <h1 className="start__title">{T.startTitle}</h1>
