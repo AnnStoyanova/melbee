@@ -29,17 +29,22 @@
   --r:          'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 html, body {
-  width: 100%; height: 100%; overflow: hidden;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
   background: #1B1B20;
   font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   display: flex; align-items: center; justify-content: center;
 }
 #root {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   max-width: 480px;
   position: relative; overflow: hidden;
   background: #1B1B20;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 #root canvas {
   display: block;
@@ -387,7 +392,14 @@ html, body {
 .aff__bonus-copy { display: flex; flex-direction: column; gap: 1px; }
 .aff__bonus-copy b { font-size: 14px; font-weight: 900; color: var(--honey); letter-spacing: .04em; }
 .aff__bonus-copy span { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.45); }
-.aff__cta { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.aff__cta {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding-bottom: 8px;
+}
 .aff__submit.is-disabled { opacity: .45; }
 .aff__paste {
   background: none; border: none; cursor: pointer;
