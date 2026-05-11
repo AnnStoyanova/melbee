@@ -295,7 +295,7 @@ html, body {
 /* ─── AFFILIATE ─── */
 .aff {
   background: linear-gradient(180deg, #1A1A22 0%, #0F0F10 100%);
-  padding: 0 22px 20px;
+  padding: 24px 22px 28px;
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
@@ -315,10 +315,15 @@ html, body {
 .aff__skip { color: var(--honey); cursor: pointer; }
 .aff__hero {
   width: 100%;
+  flex: 1;
   display: flex; align-items: center; justify-content: center;
-  height: 120px;
+  min-height: 0;
+  margin-bottom: 4px;
 }
-.aff__bee-wrap { animation: float 3s ease-in-out infinite; }
+.aff__bee-wrap {
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 16px 24px rgba(0,0,0,.55));
+}
 .aff__eyebrow {
   font-size: 10px; font-weight: 800; letter-spacing: .24em;
   text-transform: uppercase; color: var(--honey);
@@ -327,12 +332,14 @@ html, body {
 .aff__title {
   font-size: 44px; font-weight: 900; line-height: .92;
   color: var(--cream); margin-bottom: 8px;
+  text-align: center;
 }
 .aff__title span { color: var(--honey); }
 .aff__sub {
   font-size: 13px; font-weight: 700;
   color: rgba(244,236,216,.5); line-height: 1.45;
-  margin-bottom: 14px;
+  margin-bottom: 18px;
+  text-align: center;
 }
 .aff__field {
   width: 100%;
