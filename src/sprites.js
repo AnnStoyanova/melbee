@@ -2,8 +2,11 @@
 // BeeBolid, Bee, MiniBee, Flower, Rock, Hive, Honeycomb, Bush,
 // LawnFlowers, FencePost, Fence, WindingPath, getPathX
 
-// Bee-racer sprites — v2. Bee IS the car (bee-shaped chassis with wings,
-// antennae, smile, race number). Cartoonish, top-down, soft outlines.
+// Bee sprites — v3. Sticker-style cartoon bee: thick white outline,
+// round yellow body with two thick black stripes, white leaf wings,
+// loop-tip antennae, simple smile, small stinger. Matches the
+// reference screenshot. The bee no longer has wheels/exhaust — it
+// flies (was a "bee-bolid" racer before).
 
 const C = {
   honey: '#F5C518',
@@ -27,191 +30,177 @@ const C = {
   petalDeep: '#7A4ABF',
   stone: '#B0B0B0',
   stoneDark: '#6F6F6F',
+  wingFill: '#FFFFFF',
+  wingEdge: '#D0D0D0',
+  stickerOutline: '#FFFFFF',
 };
 
-// =================== BEE-BOLID (bee-shaped racer, top-down) ===================
+// =================== BEE-BOLID (sticker-style flying bee, game character) ===================
+// Same function signature as before so the rest of the game keeps working.
+// The `number` prop is accepted (no error) but the race-number plate has been
+// removed along with the wheels and exhaust — the bee just flies now.
 function BeeBolid({ size = 160, style, number = '1' }) {
   const w = size * 0.7, h = size;
   return (
     <svg width={w} height={h} viewBox="0 0 100 140" style={style} className="beebolid">
       <defs>
-        <radialGradient id="bbBody" cx="0.5" cy="0.4" r="0.7">
-          <stop offset="0" stopColor="#FFE066"/>
-          <stop offset="0.6" stopColor={C.honey}/>
-          <stop offset="1" stopColor={C.honeyDeep}/>
-        </radialGradient>
-        <linearGradient id="bbWing" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="rgba(255,255,255,0.95)"/>
-          <stop offset="1" stopColor="rgba(210,225,255,0.7)"/>
-        </linearGradient>
+        <clipPath id="bbBodyClip">
+          <ellipse cx="50" cy="66" rx="27" ry="34"/>
+        </clipPath>
       </defs>
 
-      {/* Exhaust smoke trail */}
-      <g className="bb__exhaust">
-        <ellipse cx="38" cy="135" rx="6" ry="4" fill="rgba(255,255,255,0.85)" className="bb__puff bb__puff--1"/>
-        <ellipse cx="62" cy="135" rx="6" ry="4" fill="rgba(255,255,255,0.85)" className="bb__puff bb__puff--2"/>
-        <ellipse cx="38" cy="128" rx="5" ry="3.5" fill="rgba(255,255,255,0.65)" className="bb__puff bb__puff--3"/>
-        <ellipse cx="62" cy="128" rx="5" ry="3.5" fill="rgba(255,255,255,0.65)" className="bb__puff bb__puff--4"/>
+      {/* Stinger — drawn behind body so only the tip shows */}
+      <path d="M 45 100 L 50 121 L 55 100 Z" fill={C.stickerOutline}/>
+      <path d="M 47 100 L 50 117 L 53 100 Z" fill={C.honey}/>
+
+      {/* Left wing */}
+      <g className="bb__wing bb__wing--l" style={{ transformOrigin: '32px 56px' }}>
+        <ellipse cx="22" cy="56" rx="21" ry="15" fill={C.wingFill} transform="rotate(12 22 56)"/>
+        <ellipse cx="22" cy="56" rx="18" ry="12" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.4" transform="rotate(12 22 56)"/>
       </g>
 
-      {/* Rear wheels */}
-      <g className="bb__wheel bb__wheel--rl" style={{ transformOrigin: '20px 110px' }}>
-        <ellipse cx="20" cy="110" rx="11" ry="14" fill={C.ink} stroke={C.black} strokeWidth="2"/>
-        <ellipse cx="20" cy="110" rx="6" ry="8" fill="#3a2410"/>
-        <rect x="17" y="103" width="6" height="2" fill={C.honey} opacity="0.7"/>
-        <rect x="17" y="115" width="6" height="2" fill={C.honey} opacity="0.7"/>
-      </g>
-      <g className="bb__wheel bb__wheel--rr" style={{ transformOrigin: '80px 110px' }}>
-        <ellipse cx="80" cy="110" rx="11" ry="14" fill={C.ink} stroke={C.black} strokeWidth="2"/>
-        <ellipse cx="80" cy="110" rx="6" ry="8" fill="#3a2410"/>
-        <rect x="77" y="103" width="6" height="2" fill={C.honey} opacity="0.7"/>
-        <rect x="77" y="115" width="6" height="2" fill={C.honey} opacity="0.7"/>
+      {/* Right wing */}
+      <g className="bb__wing bb__wing--r" style={{ transformOrigin: '68px 56px' }}>
+        <ellipse cx="78" cy="56" rx="21" ry="15" fill={C.wingFill} transform="rotate(-12 78 56)"/>
+        <ellipse cx="78" cy="56" rx="18" ry="12" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.4" transform="rotate(-12 78 56)"/>
       </g>
 
-      {/* Wings (sides, drawn behind body) */}
-      <g className="bb__wing bb__wing--l" style={{ transformOrigin: '36px 60px' }}>
-        <ellipse cx="20" cy="58" rx="18" ry="11" fill="url(#bbWing)" stroke="rgba(20,20,30,0.45)" strokeWidth="1.2"/>
-        <path d="M8 58 Q14 54 32 58" stroke="rgba(20,20,30,0.25)" strokeWidth="0.8" fill="none"/>
-      </g>
-      <g className="bb__wing bb__wing--r" style={{ transformOrigin: '64px 60px' }}>
-        <ellipse cx="80" cy="58" rx="18" ry="11" fill="url(#bbWing)" stroke="rgba(20,20,30,0.45)" strokeWidth="1.2"/>
-        <path d="M68 58 Q86 54 92 58" stroke="rgba(20,20,30,0.25)" strokeWidth="0.8" fill="none"/>
+      {/* Left antenna — sticker outline + thin black line + loop tip */}
+      <g className="bb__antenna bb__antenna--l" style={{ transformOrigin: '43px 36px' }}>
+        <path d="M 44 40 Q 32 22 28 8" stroke={C.stickerOutline} strokeWidth="4.2" fill="none" strokeLinecap="round"/>
+        <path d="M 44 40 Q 32 22 28 8" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        <circle cx="28" cy="8" r="4" fill={C.stickerOutline}/>
+        <circle cx="28" cy="8" r="2.7" fill={C.stickerOutline} stroke={C.black} strokeWidth="1.1"/>
       </g>
 
-      {/* Bee-body chassis — rounded oval */}
-      <ellipse cx="50" cy="72" rx="28" ry="38" fill="url(#bbBody)" stroke={C.black} strokeWidth="2.5"/>
-      {/* Black stripes (curved to follow the body) */}
-      <path d="M25 60 Q50 70 75 60" stroke={C.black} strokeWidth="0" fill="none"/>
-      <path d="M22 70 Q50 80 78 70 L78 78 Q50 88 22 78 Z" fill={C.black}/>
-      <path d="M22 92 Q50 102 78 92 L78 100 Q50 110 22 100 Z" fill={C.black}/>
-
-      {/* Race number circle */}
-      <circle cx="50" cy="84" r="9" fill={C.cream} stroke={C.black} strokeWidth="2"/>
-      <text x="50" y="89" fontFamily="Bebas Neue, Anton, sans-serif" fontSize="14" textAnchor="middle" fill={C.black} fontWeight="900">{number}</text>
-
-      {/* Front nose / wing */}
-      <path d="M30 38 Q50 26 70 38 L66 50 L34 50 Z" fill={C.black}/>
-      <rect x="22" y="32" width="56" height="6" rx="2" fill={C.honey} stroke={C.black} strokeWidth="1.5"/>
-
-      {/* Front wheels */}
-      <g className="bb__wheel bb__wheel--fl" style={{ transformOrigin: '18px 50px' }}>
-        <ellipse cx="18" cy="50" rx="9" ry="11" fill={C.ink} stroke={C.black} strokeWidth="2"/>
-        <ellipse cx="18" cy="50" rx="5" ry="6" fill="#3a2410"/>
-      </g>
-      <g className="bb__wheel bb__wheel--fr" style={{ transformOrigin: '82px 50px' }}>
-        <ellipse cx="82" cy="50" rx="9" ry="11" fill={C.ink} stroke={C.black} strokeWidth="2"/>
-        <ellipse cx="82" cy="50" rx="5" ry="6" fill="#3a2410"/>
+      {/* Right antenna */}
+      <g className="bb__antenna bb__antenna--r" style={{ transformOrigin: '57px 36px' }}>
+        <path d="M 56 40 Q 68 22 72 8" stroke={C.stickerOutline} strokeWidth="4.2" fill="none" strokeLinecap="round"/>
+        <path d="M 56 40 Q 68 22 72 8" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        <circle cx="72" cy="8" r="4" fill={C.stickerOutline}/>
+        <circle cx="72" cy="8" r="2.7" fill={C.stickerOutline} stroke={C.black} strokeWidth="1.1"/>
       </g>
 
-      {/* Bee head — fuzzy circle on top */}
-      <circle cx="50" cy="42" r="14" fill={C.honey} stroke={C.black} strokeWidth="2.5"/>
-      {/* Fuzz spikes around head */}
-      <g stroke={C.honeyDeep} strokeWidth="1.5" strokeLinecap="round">
-        <line x1="38" y1="34" x2="35" y2="30"/>
-        <line x1="62" y1="34" x2="65" y2="30"/>
-        <line x1="38" y1="50" x2="35" y2="53"/>
-        <line x1="62" y1="50" x2="65" y2="53"/>
-        <line x1="50" y1="28" x2="50" y2="24"/>
+      {/* Body — white sticker halo + yellow fill (single round shape, no separate head) */}
+      <ellipse cx="50" cy="66" rx="30.5" ry="37.5" fill={C.stickerOutline}/>
+      <ellipse cx="50" cy="66" rx="27" ry="34" fill={C.honey}/>
+
+      {/* Two thick black stripes, clipped to body so they follow its curve */}
+      <g clipPath="url(#bbBodyClip)">
+        <ellipse cx="50" cy="58" rx="30" ry="7" fill={C.black}/>
+        <ellipse cx="50" cy="79" rx="28" ry="6.5" fill={C.black}/>
       </g>
 
-      {/* Antennae */}
-      <g className="bb__antenna bb__antenna--l" style={{ transformOrigin: '44px 30px' }}>
-        <path d="M44 30 Q40 20 38 12" stroke={C.black} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-        <circle cx="38" cy="12" r="3" fill={C.black}/>
-        <circle cx="37" cy="11" r="0.8" fill="#fff" opacity="0.7"/>
-      </g>
-      <g className="bb__antenna bb__antenna--r" style={{ transformOrigin: '56px 30px' }}>
-        <path d="M56 30 Q60 20 62 12" stroke={C.black} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-        <circle cx="62" cy="12" r="3" fill={C.black}/>
-        <circle cx="61" cy="11" r="0.8" fill="#fff" opacity="0.7"/>
-      </g>
-
-      {/* Eyes — big cartoon */}
-      <ellipse cx="44" cy="42" rx="3" ry="4" fill={C.black}/>
-      <ellipse cx="56" cy="42" rx="3" ry="4" fill={C.black}/>
-      <circle cx="45" cy="40.5" r="1" fill="#fff"/>
-      <circle cx="57" cy="40.5" r="1" fill="#fff"/>
-      {/* Smile */}
-      <path d="M44 48 Q50 52 56 48" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
-      {/* Cheeks */}
-      <circle cx="38" cy="46" r="2" fill="#FF8FA8" opacity="0.7"/>
-      <circle cx="62" cy="46" r="2" fill="#FF8FA8" opacity="0.7"/>
+      {/* Face — oval eyes + simple smile */}
+      <ellipse cx="44" cy="46" rx="2.2" ry="3.1" fill={C.black}/>
+      <ellipse cx="56" cy="46" rx="2.2" ry="3.1" fill={C.black}/>
+      <path d="M 45.5 51.5 Q 50 55 54.5 51.5" stroke={C.black} strokeWidth="1.4" fill="none" strokeLinecap="round"/>
     </svg>
   );
 }
 
-// Standalone Bee (for menu / library), matching the new style
+// =================== STANDALONE BEE (menu / library) ===================
+// Same sticker style. `variant='angry'` swaps the eyes for angry slashes.
 function Bee({ size = 100, variant = 'fly', flap = true, style }) {
   const s = size;
+  const clipId = `beeBodyClip-${variant}`;
   return (
     <svg width={s} height={s} viewBox="0 0 100 100" style={style} className={`bee bee--${variant} ${flap ? 'bee--flap' : ''}`}>
       <defs>
-        <radialGradient id={`beeBody-${variant}`} cx="0.5" cy="0.4" r="0.7">
-          <stop offset="0" stopColor="#FFE066"/>
-          <stop offset="0.6" stopColor={C.honey}/>
-          <stop offset="1" stopColor={C.honeyDeep}/>
-        </radialGradient>
+        <clipPath id={clipId}>
+          <ellipse cx="50" cy="55" rx="26" ry="30"/>
+        </clipPath>
       </defs>
-      {/* Wings */}
-      <g className="bee__wing bee__wing--l" style={{ transformOrigin: '38px 38px' }}>
-        <ellipse cx="28" cy="36" rx="18" ry="12" fill="rgba(255,255,255,0.85)" stroke="rgba(20,20,30,0.4)" strokeWidth="1.2"/>
+
+      {/* Stinger */}
+      <path d="M 46 87 L 50 99 L 54 87 Z" fill={C.stickerOutline}/>
+      <path d="M 47.5 87 L 50 96 L 52.5 87 Z" fill={C.honey}/>
+
+      {/* Left wing */}
+      <g className="bee__wing bee__wing--l" style={{ transformOrigin: '34px 46px' }}>
+        <ellipse cx="22" cy="44" rx="20" ry="14" fill={C.wingFill} transform="rotate(12 22 44)"/>
+        <ellipse cx="22" cy="44" rx="17" ry="11" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.4" transform="rotate(12 22 44)"/>
       </g>
-      <g className="bee__wing bee__wing--r" style={{ transformOrigin: '62px 38px' }}>
-        <ellipse cx="72" cy="36" rx="18" ry="12" fill="rgba(255,255,255,0.85)" stroke="rgba(20,20,30,0.4)" strokeWidth="1.2"/>
+
+      {/* Right wing */}
+      <g className="bee__wing bee__wing--r" style={{ transformOrigin: '66px 46px' }}>
+        <ellipse cx="78" cy="44" rx="20" ry="14" fill={C.wingFill} transform="rotate(-12 78 44)"/>
+        <ellipse cx="78" cy="44" rx="17" ry="11" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.4" transform="rotate(-12 78 44)"/>
       </g>
+
+      {/* Left antenna */}
+      <g className="bee__antenna bee__antenna--l" style={{ transformOrigin: '43px 28px' }}>
+        <path d="M 44 30 Q 34 14 30 4" stroke={C.stickerOutline} strokeWidth="4" fill="none" strokeLinecap="round"/>
+        <path d="M 44 30 Q 34 14 30 4" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        <circle cx="30" cy="4" r="3.7" fill={C.stickerOutline}/>
+        <circle cx="30" cy="4" r="2.5" fill={C.stickerOutline} stroke={C.black} strokeWidth="1.1"/>
+      </g>
+
+      {/* Right antenna */}
+      <g className="bee__antenna bee__antenna--r" style={{ transformOrigin: '57px 28px' }}>
+        <path d="M 56 30 Q 66 14 70 4" stroke={C.stickerOutline} strokeWidth="4" fill="none" strokeLinecap="round"/>
+        <path d="M 56 30 Q 66 14 70 4" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+        <circle cx="70" cy="4" r="3.7" fill={C.stickerOutline}/>
+        <circle cx="70" cy="4" r="2.5" fill={C.stickerOutline} stroke={C.black} strokeWidth="1.1"/>
+      </g>
+
       {/* Body */}
-      <ellipse cx="50" cy="60" rx="26" ry="22" fill={`url(#beeBody-${variant})`} stroke={C.black} strokeWidth="2.5"/>
+      <ellipse cx="50" cy="55" rx="29.5" ry="33.5" fill={C.stickerOutline}/>
+      <ellipse cx="50" cy="55" rx="26" ry="30" fill={C.honey}/>
+
       {/* Stripes */}
-      <path d="M26 56 Q50 64 74 56 L74 64 Q50 72 26 64 Z" fill={C.black}/>
-      <path d="M30 76 Q50 82 70 76 L70 80 L50 82 L30 80 Z" fill={C.black}/>
-      {/* Head */}
-      <circle cx="50" cy="40" r="16" fill={C.honey} stroke={C.black} strokeWidth="2.5"/>
-      {/* Fuzz */}
-      <g stroke={C.honeyDeep} strokeWidth="1.5" strokeLinecap="round">
-        <line x1="38" y1="32" x2="35" y2="28"/>
-        <line x1="62" y1="32" x2="65" y2="28"/>
-        <line x1="50" y1="26" x2="50" y2="22"/>
+      <g clipPath={`url(#${clipId})`}>
+        <ellipse cx="50" cy="48" rx="29" ry="6.2" fill={C.black}/>
+        <ellipse cx="50" cy="67" rx="27" ry="5.7" fill={C.black}/>
       </g>
-      {/* Antennae */}
-      <g className="bee__antenna bee__antenna--l" style={{ transformOrigin: '42px 28px' }}>
-        <path d="M42 28 Q36 16 32 8" stroke={C.black} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-        <circle cx="32" cy="8" r="3" fill={C.black}/>
-      </g>
-      <g className="bee__antenna bee__antenna--r" style={{ transformOrigin: '58px 28px' }}>
-        <path d="M58 28 Q64 16 68 8" stroke={C.black} strokeWidth="2.2" fill="none" strokeLinecap="round"/>
-        <circle cx="68" cy="8" r="3" fill={C.black}/>
-      </g>
-      {/* Eyes */}
+
+      {/* Face */}
       {variant === 'angry' ? (
         <>
-          <path d="M40 38 L50 42" stroke={C.black} strokeWidth="2.5" strokeLinecap="round"/>
-          <path d="M60 38 L50 42" stroke={C.black} strokeWidth="2.5" strokeLinecap="round"/>
+          <path d="M 39 35 L 47 39" stroke={C.black} strokeWidth="2.2" strokeLinecap="round"/>
+          <path d="M 61 35 L 53 39" stroke={C.black} strokeWidth="2.2" strokeLinecap="round"/>
         </>
       ) : (
         <>
-          <ellipse cx="42" cy="40" rx="3" ry="4" fill={C.black}/>
-          <ellipse cx="58" cy="40" rx="3" ry="4" fill={C.black}/>
-          <circle cx="43" cy="38.5" r="1" fill="#fff"/>
-          <circle cx="59" cy="38.5" r="1" fill="#fff"/>
+          <ellipse cx="43" cy="37" rx="2.1" ry="2.9" fill={C.black}/>
+          <ellipse cx="57" cy="37" rx="2.1" ry="2.9" fill={C.black}/>
         </>
       )}
-      <path d="M44 48 Q50 52 56 48" stroke={C.black} strokeWidth="1.6" fill="none" strokeLinecap="round"/>
-      <circle cx="36" cy="46" r="2.4" fill="#FF8FA8" opacity="0.7"/>
-      <circle cx="64" cy="46" r="2.4" fill="#FF8FA8" opacity="0.7"/>
+      <path d="M 45 42 Q 50 45.5 55 42" stroke={C.black} strokeWidth="1.3" fill="none" strokeLinecap="round"/>
     </svg>
   );
 }
 
+// =================== MINI BEE (small icon for HUD / lists) ===================
+// Simplified for tiny sizes — same sticker style but no per-element halo
+// on the thin antenna line (would be heavier than the line itself).
 function MiniBee({ size = 22, style }) {
   return (
     <svg width={size} height={size} viewBox="0 0 30 30" style={style} className="minibee">
-      <ellipse className="minibee__wing" cx="11" cy="10" rx="5" ry="3" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.4)" strokeWidth="0.6" style={{ transformOrigin: '13px 12px' }}/>
-      <ellipse className="minibee__wing minibee__wing--r" cx="19" cy="10" rx="5" ry="3" fill="rgba(255,255,255,0.9)" stroke="rgba(0,0,0,0.4)" strokeWidth="0.6" style={{ transformOrigin: '17px 12px' }}/>
-      <ellipse cx="15" cy="17" rx="7" ry="5.5" fill={C.honey} stroke={C.black} strokeWidth="1.2"/>
-      <rect x="11" y="14" width="8" height="2.4" fill={C.black}/>
-      <circle cx="15" cy="13" r="3.2" fill={C.honey} stroke={C.black} strokeWidth="1"/>
-      <circle cx="13.5" cy="13" r="0.8" fill={C.black}/>
-      <circle cx="16.5" cy="13" r="0.8" fill={C.black}/>
+      <defs>
+        <clipPath id="miniBeeBodyClip">
+          <ellipse cx="15" cy="17" rx="7" ry="8"/>
+        </clipPath>
+      </defs>
+      {/* Wings */}
+      <ellipse className="minibee__wing" cx="7" cy="13" rx="5.5" ry="3.5" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.3" style={{ transformOrigin: '11px 14px' }}/>
+      <ellipse className="minibee__wing minibee__wing--r" cx="23" cy="13" rx="5.5" ry="3.5" fill={C.wingFill} stroke={C.wingEdge} strokeWidth="0.3" style={{ transformOrigin: '19px 14px' }}/>
+      {/* Antennae */}
+      <path d="M 13 10 Q 11 5 9.5 2.5" stroke={C.black} strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+      <path d="M 17 10 Q 19 5 20.5 2.5" stroke={C.black} strokeWidth="0.9" fill="none" strokeLinecap="round"/>
+      <circle cx="9.5" cy="2.5" r="1.4" fill={C.wingFill} stroke={C.black} strokeWidth="0.7"/>
+      <circle cx="20.5" cy="2.5" r="1.4" fill={C.wingFill} stroke={C.black} strokeWidth="0.7"/>
+      {/* Body */}
+      <ellipse cx="15" cy="17" rx="8.2" ry="9.2" fill={C.stickerOutline}/>
+      <ellipse cx="15" cy="17" rx="7" ry="8" fill={C.honey}/>
+      {/* Stripes */}
+      <g clipPath="url(#miniBeeBodyClip)">
+        <ellipse cx="15" cy="15.5" rx="8" ry="1.8" fill={C.black}/>
+        <ellipse cx="15" cy="20.5" rx="7.5" ry="1.6" fill={C.black}/>
+      </g>
+      {/* Eyes */}
+      <circle cx="12.8" cy="13.8" r="0.7" fill={C.black}/>
+      <circle cx="17.2" cy="13.8" r="0.7" fill={C.black}/>
     </svg>
   );
 }
