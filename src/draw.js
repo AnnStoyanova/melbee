@@ -48,6 +48,10 @@ function drawPipe(ctx, x, topH, gapY, gapH) {
 
 
 // ──────────────────────────────
+// Sticker-style bee — thick white outline, two black stripes,
+// white wings with thin dark edge, loop-tip antennae, simple smile,
+// small stinger. Matches the reference screenshot. Collision radius
+// R stays at 26 so existing game physics keep working.
 
 function drawBee(ctx, x, y, flapT, tiltRad, frameT, dead) {
   ctx.save();
@@ -57,69 +61,104 @@ function drawBee(ctx, x, y, flapT, tiltRad, frameT, dead) {
   if (dead) ctx.globalAlpha = Math.max(.15, 1 - frameT * .022);
 
   const R = 26;
+  const HALO = R + 3.5;
+  const BLACK = '#1A1208';
+  const HONEY = '#F5C518';
+  const WHITE = '#FFFFFF';
+  const WING_EDGE = 'rgba(0,0,0,0.18)';
   const wf = Math.sin(flapT * 2.2) * .45;
+  const aw = Math.sin(frameT * .08) * 3;
 
-  // Wings
+  // ── Stinger (drawn first so body covers the base) ──
+  ctx.fillStyle = WHITE;
+  ctx.beginPath();
+  ctx.moveTo(-5, 24); ctx.lineTo(0, 40); ctx.lineTo(5, 24);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle = HONEY;
+  ctx.beginPath();
+  ctx.moveTo(-3.5, 24); ctx.lineTo(0, 37); ctx.lineTo(3.5, 24);
+  ctx.closePath(); ctx.fill();
+
+  // ── Wings (white sticker, drawn behind body) ──
   [[-1, -.3 - wf], [1, .3 + wf]].forEach(([side, rot]) => {
     ctx.save();
     ctx.translate(side * R * .7, -R * .25);
     ctx.rotate(rot);
     ctx.beginPath();
-    ctx.ellipse(0, 0, R * .9, R * .5, side * .15, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(225,238,255,.9)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(30,20,10,.32)'; ctx.lineWidth = 1.3; ctx.stroke();
+    ctx.ellipse(0, 0, R * .92, R * .52, side * .15, 0, Math.PI * 2);
+    ctx.fillStyle = WHITE; ctx.fill();
+    ctx.strokeStyle = WING_EDGE; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.restore();
   });
 
-  // Body
-  const bg = ctx.createRadialGradient(-R*.28, -R*.32, 1, 0, 0, R*1.05);
-  bg.addColorStop(0, '#FFE96A'); bg.addColorStop(.55, '#F5C518'); bg.addColorStop(1, '#D09A10');
-  ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI*2);
-  ctx.fillStyle = bg; ctx.fill();
-  ctx.strokeStyle = '#1A1208'; ctx.lineWidth = 2.4; ctx.stroke();
-
-  // Stripes
-  ctx.fillStyle = '#1A1208';
-  [{ y: 2, h: 12 }, { y: 16, h: 12 }].forEach(({ y: sy, h: sh }) => {
-    ctx.save();
-    ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.clip();
-    ctx.fillRect(-R - 2, sy, (R + 2) * 2, sh);
-    ctx.restore();
+  // ── Antennae (drawn before body so base is hidden) ──
+  const antennae = [[-7, -15 + aw], [7, 15 - aw]];
+  // White halo lines
+  ctx.strokeStyle = WHITE; ctx.lineWidth = 5; ctx.lineCap = 'round';
+  antennae.forEach(([bx, tx]) => {
+    ctx.beginPath();
+    ctx.moveTo(bx, -R + 3);
+    ctx.quadraticCurveTo(tx * .87, -R - 9, tx, -R - 19);
+    ctx.stroke();
+  });
+  // Black thin lines
+  ctx.strokeStyle = BLACK; ctx.lineWidth = 2; ctx.lineCap = 'round';
+  antennae.forEach(([bx, tx]) => {
+    ctx.beginPath();
+    ctx.moveTo(bx, -R + 3);
+    ctx.quadraticCurveTo(tx * .87, -R - 9, tx, -R - 19);
+    ctx.stroke();
+  });
+  // Loop tips (open circles)
+  antennae.forEach(([, tx]) => {
+    // White halo
+    ctx.beginPath();
+    ctx.arc(tx, -R - 19, 5, 0, Math.PI * 2);
+    ctx.fillStyle = WHITE; ctx.fill();
+    // Ring (white fill + black outline)
+    ctx.beginPath();
+    ctx.arc(tx, -R - 19, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = WHITE; ctx.fill();
+    ctx.strokeStyle = BLACK; ctx.lineWidth = 1.4; ctx.stroke();
   });
 
-  // Antennae
-  const aw = Math.sin(frameT * .08) * 3;
-  ctx.strokeStyle = '#1A1208'; ctx.lineWidth = 2.1; ctx.lineCap = 'round';
-  [[-7, -15 + aw], [7, 15 - aw]].forEach(([bx, tx], i) => {
-    ctx.beginPath(); ctx.moveTo(bx, -R+3);
-    ctx.quadraticCurveTo(tx * .87, -R-9, tx, -R-19); ctx.stroke();
-    ctx.beginPath(); ctx.arc(tx, -R-19, 3.5, 0, Math.PI*2);
-    ctx.fillStyle = '#1A1208'; ctx.fill();
-  });
+  // ── Body: white sticker halo + yellow fill ──
+  ctx.beginPath(); ctx.arc(0, 0, HALO, 0, Math.PI * 2);
+  ctx.fillStyle = WHITE; ctx.fill();
+  ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2);
+  ctx.fillStyle = HONEY; ctx.fill();
 
-  // Eyes
+  // ── Two thick black stripes (clipped to body) ──
+  ctx.save();
+  ctx.beginPath(); ctx.arc(0, 0, R, 0, Math.PI * 2); ctx.clip();
+  ctx.fillStyle = BLACK;
+  ctx.beginPath(); ctx.ellipse(0, 1, R + 4, 5.5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(0, 15, R + 2, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+
+  // ── Face: simple oval eyes (with blink) + small smile ──
   const blink = (frameT % 180) < 5;
   if (!blink) {
-    [-9, 9].forEach(ex => {
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(ex, -8, 6.5, 7.5, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#1A1208'; ctx.beginPath(); ctx.ellipse(ex, -7, 4, 5, 0, 0, Math.PI*2); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(ex+1.8, -9.5, 1.6, 0, Math.PI*2); ctx.fill();
-      ctx.strokeStyle = '#1A1208'; ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.ellipse(ex, -8, 6.5, 7.5, 0, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = BLACK;
+    [-7, 7].forEach(ex => {
+      ctx.beginPath();
+      ctx.ellipse(ex, -14, 2.5, 3.5, 0, 0, Math.PI * 2);
+      ctx.fill();
     });
   } else {
-    ctx.strokeStyle = '#1A1208'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
-    [-9, 9].forEach(ex => { ctx.beginPath(); ctx.arc(ex, -8, 5.5, Math.PI*.1, Math.PI*.9); ctx.stroke(); });
+    ctx.strokeStyle = BLACK; ctx.lineWidth = 1.8; ctx.lineCap = 'round';
+    [-7, 7].forEach(ex => {
+      ctx.beginPath();
+      ctx.moveTo(ex - 2.5, -14); ctx.lineTo(ex + 2.5, -14);
+      ctx.stroke();
+    });
   }
-
   // Smile
-  ctx.strokeStyle = '#1A1208'; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(-8, 2); ctx.quadraticCurveTo(0, 10, 8, 2); ctx.stroke();
-
-  // Cheeks
-  ctx.fillStyle = 'rgba(255,130,155,.52)';
-  [-15, 15].forEach(cx => { ctx.beginPath(); ctx.ellipse(cx, -1, 5.5, 4, 0, 0, Math.PI*2); ctx.fill(); });
+  ctx.strokeStyle = BLACK; ctx.lineWidth = 1.7; ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-4, -8);
+  ctx.quadraticCurveTo(0, -5, 4, -8);
+  ctx.stroke();
 
   ctx.restore();
 }
