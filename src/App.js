@@ -45,7 +45,7 @@ function GameEndedScreen() {
       }}>
         <div style={{fontSize:48, marginBottom:8}}>🏁</div>
         <h1 style={{fontFamily:'Nunito,sans-serif',fontWeight:900,fontSize:26,color:'#fff',margin:'0 0 8px'}}>
-          Game Over!
+          The hive is closing until the next flight 🐝
         </h1>
         <p style={{fontFamily:'Nunito,sans-serif',fontWeight:600,fontSize:14,color:'rgba(255,255,255,.5)',margin:'0 0 20px',lineHeight:1.5}}>
           Thanks to all participants!<br/>Here is the final leaderboard 🏆
