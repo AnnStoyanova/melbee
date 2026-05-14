@@ -1,6 +1,6 @@
 // App.js — root component, screen routing
 
-// ── API URL  ────────────────────────────────
+// ── API URL (замінити на свій) ────────────────────────────────
 const GAME_API_URL = 'https://melbee-admin.com/api';
 
 // ── Відправка результату на сервер ───────────────────────────
@@ -101,6 +101,26 @@ function App() {
   const [best,    setBest]    = useState(() => LS.get('mb_best',  0));
   const [games,   setGames]   = useState(() => LS.get('mb_games', 0));
   const [affId,   setAffId]   = useState(() => LS.get('mb_affid', ''));
+
+  // При відкритті — перевіряємо чи TG юзер вже зареєстрований на сервері
+  useEffect(() => {
+    const tgId = tgUser?.id;
+    if (!tgId) return;
+    fetch(`${GAME_API_URL}/tg-user?tgId=${tgId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.partnerId) {
+          LS.set('mb_affid', data.partnerId);
+          setAffId(data.partnerId);
+          setScreen('start'); // пропускаємо affiliate екран
+        }
+      })
+      .catch(() => {
+        // якщо API недоступний — перевіряємо localStorage
+        const saved = LS.get('mb_affid', '');
+        if (saved) setScreen('start');
+      });
+  }, []);
 
   const play = () => {
     applyConfig();           // підтягує параметри з адмінки перед кожною грою
