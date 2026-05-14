@@ -1,5 +1,27 @@
 // App.js — root component, screen routing
 
+// ── API URL  ────────────────────────────────
+const GAME_API_URL = 'https://melbee-admin.com/api';
+
+// ── Відправка результату на сервер ───────────────────────────
+async function sendSession(score, level, flowers, partnerId, tgData = {}) {
+  try {
+    await fetch(GAME_API_URL + '/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        score, level, flowers,
+        partnerId:  partnerId || null,
+        tgId:       tgData.id || null,
+        tgUsername: tgData.username || null,
+        tgName:     tgData.firstName || null,
+      }),
+    });
+  } catch (e) {
+    console.warn('API session error:', e);
+  }
+}
+
 // ── Дата закінчення гри ───────────────────────────────────────
 const GAME_END_DATE = new Date('2026-05-28T00:00:00');
 const isGameEnded   = () => new Date() >= GAME_END_DATE;
@@ -23,10 +45,10 @@ function GameEndedScreen() {
       }}>
         <div style={{fontSize:48, marginBottom:8}}>🏁</div>
         <h1 style={{fontFamily:'Nunito,sans-serif',fontWeight:900,fontSize:26,color:'#fff',margin:'0 0 8px'}}>
-          Гра завершена!
+          Game Over!
         </h1>
         <p style={{fontFamily:'Nunito,sans-serif',fontWeight:600,fontSize:14,color:'rgba(255,255,255,.5)',margin:'0 0 20px',lineHeight:1.5}}>
-          Дякуємо всім учасникам!<br/>Ось фінальний лідерборд 🏆
+          Thanks to all participants!<br/>Here is the final leaderboard 🏆
         </p>
       </div>
 
@@ -101,6 +123,12 @@ function App() {
       firstName: tgUser?.first_name,
       lastName:  tgUser?.last_name,
     });
+    // Відправляємо на сервер
+    sendSession(sc, st.level, st.flowers, LS.get('mb_affid', ''), {
+      id:        tgUser?.id,
+      username:  tgUser?.username,
+      firstName: tgUser?.first_name,
+    });
     const msgs = getCrashMsgs();
     setOver({
       score: sc, level: st.level, flowers: st.flowers, isNew,
@@ -121,5 +149,5 @@ function App() {
     </div>
   );
 }
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
