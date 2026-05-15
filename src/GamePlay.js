@@ -190,16 +190,30 @@ function GamePlay({ onGameOver }) {
     return () => cancelAnimationFrame(raf);
   }, []);
 
+  const [turboConfirm, setTurboConfirm] = useState(false);
   const lastTapRef = useRef(0);
-  const handleTap  = useCallback(() => {
+
+  const activateTurbo = useCallback(() => {
+    const st = stRef.current;
+    if (!st) return;
+    st.turboActive = true; st.turboTimer = TURBO_FRAMES; st.turboCharge = 0;
+    sfx.turbo();
+    setTurboConfirm(false);
+  }, []);
+
+  const handleTap = useCallback(() => {
     resumeAudio();
     const st = stRef.current;
     if (!st?.alive) return;
     const now = Date.now();
+    // Подвійний тап з повним зарядом → показати підтвердження
     if (now - lastTapRef.current < DOUBLE_MS && st.turboCharge >= TURBO_MAX && !st.turboActive) {
-      st.turboActive = true; st.turboTimer = TURBO_FRAMES; st.turboCharge = 0; sfx.turbo();
-    } else { sfx.jump(); }
+      setTurboConfirm(true);
+      lastTapRef.current = now;
+      return; // не стрибаємо при активації турбо
+    }
     lastTapRef.current = now;
+    sfx.jump();
     st.beeVY = JUMP_VY;
   }, []);
 
@@ -215,11 +229,47 @@ function GamePlay({ onGameOver }) {
       <canvas ref={canvasRef} width={GW} height={GH}
         style={{ position:'absolute', inset:0, background:'transparent' }}
         onTouchStart={e => { e.preventDefault(); handleTap(); }}
-        onMouseDown={e => { if (e.pointerType !== 'touch') handleTap(); }}/>
+        onMouseDown={e => { if (!e.isTrusted || e.pointerType === 'mouse') handleTap(); }}/>
       <div className="hud">
         <div className="hud__score">{score}</div>
         <div className="hud__level">Level {level}</div>
       </div>
+      {turboConfirm && (
+        <div style={{
+          position:'absolute', inset:0, zIndex:100,
+          background:'rgba(0,0,0,.65)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>
+          <div style={{
+            background:'#1A1A22', borderRadius:20,
+            padding:'28px 24px', width:280,
+            boxShadow:'0 8px 40px rgba(0,0,0,.6)',
+            textAlign:'center',
+          }}>
+            <div style={{fontSize:40, marginBottom:12}}>⚡</div>
+            <div style={{fontFamily:'Nunito,sans-serif',fontWeight:900,fontSize:20,color:'#fff',marginBottom:8}}>
+              Activate Turbo?
+            </div>
+            <div style={{fontFamily:'Nunito,sans-serif',fontWeight:600,fontSize:13,color:'rgba(255,255,255,.5)',marginBottom:24,lineHeight:1.5}}>
+              Turbo mode makes pipes passable for a short time!
+            </div>
+            <button onClick={activateTurbo} style={{
+              width:'100%', padding:'14px',
+              background:'#FF6B00', border:'none', borderRadius:12,
+              fontFamily:'Nunito,sans-serif', fontWeight:900,
+              fontSize:16, color:'#fff', cursor:'pointer',
+              marginBottom:10, WebkitTapHighlightColor:'transparent',
+            }}>🚀 Activate!</button>
+            <button onClick={() => setTurboConfirm(false)} style={{
+              width:'100%', padding:'14px',
+              background:'rgba(255,255,255,.08)', border:'none', borderRadius:12,
+              fontFamily:'Nunito,sans-serif', fontWeight:700,
+              fontSize:16, color:'rgba(255,255,255,.6)', cursor:'pointer',
+              WebkitTapHighlightColor:'transparent',
+            }}>Cancel</button>
+          </div>
+        </div>
+      )}
       <div className="turbo">
         <div className="turbo__label">⚡ Turbo </div>
         <div className="turbo__track"><div className="turbo__fill" style={{ width: (turbo/TURBO_MAX*100)+'%' }}/></div>
