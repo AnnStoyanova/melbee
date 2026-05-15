@@ -9,18 +9,48 @@ function AffiliateScreen({ onNext, onSkip }) {
   const [checking, setChecking] = useState(false);
 
   const formatOk = id.length >= 2 && /^[A-Za-z0-9_-]+$/.test(id);
-  const getAllowedIds = () => LS.get('mb_allowed_ids', []).map(s => s.toUpperCase().trim()).filter(Boolean);
-  const validateId = (v) => { const a = getAllowedIds(); return a.length === 0 || a.includes(v.toUpperCase().trim()); };
-  const onChange = e => { const v = e.target.value.toUpperCase().slice(0,16); setId(v); if (error) setError(null); };
-  const submit = () => {
+
+  const submit = async () => {
     if (!formatOk) { setError('format'); return; }
     setChecking(true);
-    setTimeout(() => { if (validateId(id)) { setChecking(false); onNext(id); } else { setChecking(false); setError('unknown'); } }, 400);
+    try {
+      const apiUrl = window.GAME_API_URL || 'https://melbee-admin.com/api';
+      const tgId   = window.tgUser?.id || null;
+      const params = new URLSearchParams({ id: id.toUpperCase() });
+      if (tgId) params.append('tgId', tgId);
+
+      const res  = await fetch(`${apiUrl}/validate-partner?${params}`);
+      const data = await res.json();
+
+      if (data.reason === 'already_registered') {
+        setError(`already:${data.partner_id}`);
+      } else if (data.valid) {
+        onNext(id.toUpperCase());
+      } else {
+        setError('unknown');
+      }
+    } catch (e) {
+      // Якщо API недоступний — перевіряємо локально
+      const allowed = LS.get('mb_allowed_ids', []).map(s => s.toUpperCase());
+      if (allowed.length === 0 || allowed.includes(id.toUpperCase())) {
+        onNext(id.toUpperCase());
+      } else {
+        setError('unknown');
+      }
+    } finally {
+      setChecking(false);
+    }
   };
 
-  const isValid = formatOk && error === null;
+  const onChange = e => { const v = e.target.value.toUpperCase().slice(0,16); setId(v); if (error) setError(null); };
+
+  const isValid  = formatOk && error === null;
   const hasError = error !== null;
-  const errText = error === 'format' ? 'Invalid format. Allowed: A-Z, 0-9' : T.affError;
+  const errText  = error === 'format'
+    ? 'Invalid format. Allowed: A-Z, 0-9'
+    : error?.startsWith('already:')
+    ? `This TG account is already registered as #${error.split(':')[1]}`
+    : T.affError;
 
   return (
     <div style={{position:'absolute',inset:0,background:'#0D0D0D',display:'flex',flexDirection:'column',alignItems:'center',padding:'0 24px 32px',overflow:'hidden',boxSizing:'border-box'}}>
@@ -165,10 +195,30 @@ function GameOverScreen({ score, level, flowers, isNew, msg, onLb, onRetry }) {
 // ── LEADERBOARD SCREEN ────────────────────────────────────────
 function LeaderboardScreen({ onPlay }) {
   const T   = getTexts();
-  const lb  = LS.get('mb_lb', []);
   const affId = LS.get('mb_affid', '');
   const me  = affId ? '#' + affId : TG_NAME;
   const rankIcons = ['🥇','🥈','🥉'];
+
+  const [lb,      setLb]      = useState(LS.get('mb_lb', []));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://melbee-admin.com/api/leaderboard')
+      .then(r => r.json())
+      .then(data => {
+        if (data.leaderboard && data.leaderboard.length > 0) {
+          // API повертає {partner_id, score} — нормалізуємо
+          const rows = data.leaderboard.map(e => ({
+            name:  e.partner_id ? '#' + e.partner_id : (e.tg_username ? '@' + e.tg_username : '?'),
+            score: e.score,
+          }));
+          setLb(rows);
+          LS.set('mb_lb', rows);
+        }
+      })
+      .catch(() => {}) // якщо API недоступний — показуємо локальний
+      .finally(() => setLoading(false));
+  }, []);
   return (
     <div style={{position:'absolute',inset:0,background:'#0D0D0D',display:'flex',flexDirection:'column',alignItems:'center',overflow:'hidden'}}>
       {/* Logo */}
@@ -179,7 +229,9 @@ function LeaderboardScreen({ onPlay }) {
       </div>
       {/* List */}
       <div style={{flex:1,width:'100%',padding:'0 16px',overflowY:'auto',boxSizing:'border-box',display:'flex',flexDirection:'column',gap:8}}>
-        {lb.length === 0 ? (
+        {loading ? (
+          <div style={{textAlign:'center',color:'rgba(255,255,255,.4)',fontFamily:'Nunito,sans-serif',fontWeight:700,fontSize:14,marginTop:40}}>Loading... ⏳</div>
+        ) : lb.length === 0 ? (
           <div style={{textAlign:'center',color:'rgba(255,255,255,.3)',fontFamily:'Nunito,sans-serif',fontWeight:700,fontSize:14,marginTop:40}}>{T.lbEmpty}</div>
         ) : lb.map((e,i) => (
           <div key={i} style={{display:'flex',alignItems:'center',background:e.name===me?'rgba(255,107,0,.1)':'#1A1A1A',border:e.name===me?'1.5px solid #FF6B00':'1.5px solid rgba(255,255,255,.05)',borderRadius:12,padding:'12px 16px',gap:12}}>
