@@ -4,6 +4,7 @@ function GamePlay({ onGameOver }) {
   const canvasRef  = useRef(null);
   const overlayRef = useRef(null);
   const stRef      = useRef(null);
+  const pausedRef  = useRef(false);
   const [score,   setScore]   = useState(0);
   const [level,   setLevel]   = useState(1);
   const [turbo,   setTurbo]   = useState(0);
@@ -52,7 +53,7 @@ function GamePlay({ onGameOver }) {
       st.frameT++;
 
       // Пауза поки відкритий діалог турбо
-      if (st.paused) {
+      if (pausedRef.current) {
         render(ctx, st);
         raf = requestAnimationFrame(tick); return;
       }
@@ -203,7 +204,7 @@ function GamePlay({ onGameOver }) {
     const st = stRef.current;
     if (!st) return;
     st.turboActive = true; st.turboTimer = TURBO_FRAMES; st.turboCharge = 0;
-    st.paused = false;
+    pausedRef.current = false;
     sfx.turbo();
     setTurboConfirm(false);
   }, []);
@@ -215,7 +216,7 @@ function GamePlay({ onGameOver }) {
     const now = Date.now();
     // Подвійний тап з повним зарядом → показати підтвердження
     if (now - lastTapRef.current < DOUBLE_MS && st.turboCharge >= TURBO_MAX && !st.turboActive) {
-      st.paused = true;
+      pausedRef.current = true;
       setTurboConfirm(true);
       lastTapRef.current = now;
       return; // не стрибаємо при активації турбо
@@ -237,7 +238,7 @@ function GamePlay({ onGameOver }) {
       <canvas ref={canvasRef} width={GW} height={GH}
         style={{ position:'absolute', inset:0, background:'transparent' }}
         onTouchStart={e => { e.preventDefault(); handleTap(); }}
-        onMouseDown={e => { if (!e.isTrusted || e.pointerType === 'mouse') handleTap(); }}/>
+        onMouseDown={e => { if (e.pointerType === 'mouse') handleTap(); }}/>
       <div className="hud">
         <div className="hud__score">{score}</div>
         <div className="hud__level">Level {level}</div>
@@ -268,7 +269,7 @@ function GamePlay({ onGameOver }) {
               fontSize:16, color:'#fff', cursor:'pointer',
               marginBottom:10, WebkitTapHighlightColor:'transparent',
             }}>🚀 Activate!</button>
-            <button onClick={() => { stRef.current.paused = false; setTurboConfirm(false); }} style={{
+            <button onClick={() => { pausedRef.current = false; setTurboConfirm(false); }} style={{
               width:'100%', padding:'14px',
               background:'rgba(255,255,255,.08)', border:'none', borderRadius:12,
               fontFamily:'Nunito,sans-serif', fontWeight:700,
