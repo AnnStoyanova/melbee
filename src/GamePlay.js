@@ -11,7 +11,7 @@ function GamePlay({ onGameOver }) {
   const [scrollY, setScrollY] = useState(0);
 
   const mkState = () => ({
-    beeY: GH * .42, beeVY: 0, alive: true,
+    beeY: GH * .42, beeVY: 0, alive: true, paused: false,
     flapT: 0, frameT: 0, scrollY: 0,
     speed: BASE_SPEED, level: 1, score: 0, flowers: 0,
     turboCharge: 0, turboActive: false, turboTimer: 0,
@@ -50,6 +50,12 @@ function GamePlay({ onGameOver }) {
     const tick = () => {
       const st = stRef.current;
       st.frameT++;
+
+      // Пауза поки відкритий діалог турбо
+      if (st.paused) {
+        render(ctx, st);
+        raf = requestAnimationFrame(tick); return;
+      }
 
       if (!st.alive) {
         st.shake = Math.max(0, st.shake - 1);
@@ -197,6 +203,7 @@ function GamePlay({ onGameOver }) {
     const st = stRef.current;
     if (!st) return;
     st.turboActive = true; st.turboTimer = TURBO_FRAMES; st.turboCharge = 0;
+    st.paused = false;
     sfx.turbo();
     setTurboConfirm(false);
   }, []);
@@ -208,6 +215,7 @@ function GamePlay({ onGameOver }) {
     const now = Date.now();
     // Подвійний тап з повним зарядом → показати підтвердження
     if (now - lastTapRef.current < DOUBLE_MS && st.turboCharge >= TURBO_MAX && !st.turboActive) {
+      st.paused = true;
       setTurboConfirm(true);
       lastTapRef.current = now;
       return; // не стрибаємо при активації турбо
@@ -260,7 +268,7 @@ function GamePlay({ onGameOver }) {
               fontSize:16, color:'#fff', cursor:'pointer',
               marginBottom:10, WebkitTapHighlightColor:'transparent',
             }}>🚀 Activate!</button>
-            <button onClick={() => setTurboConfirm(false)} style={{
+            <button onClick={() => { stRef.current.paused = false; setTurboConfirm(false); }} style={{
               width:'100%', padding:'14px',
               background:'rgba(255,255,255,.08)', border:'none', borderRadius:12,
               fontFamily:'Nunito,sans-serif', fontWeight:700,
