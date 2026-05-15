@@ -1,412 +1,861 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>MelBee 🐝</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atom Space CRM</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin></script>
-<style>
-/* ─── Reset & Root ─── */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --honey:      #F5C518;
-  --honey-dark: #D9A60E;
-  --amber:      #FF9A1A;
-  --orange:     #FF7A1A;
-  --black:      #0F0F10;
-  --ink:        #1A1A1C;
-  --ink2:       #232327;
-  --cream:      #F4ECD8;
-  --green:      #7BC043;
-  --line:       rgba(255,255,255,0.08);
-  --r:          'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-}
-html, body {
-  width: 100%; height: 100%; overflow: hidden;
-  background: #0B0B0E;
-  font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  display: flex; align-items: center; justify-content: center;
-}
-#root {
-  width: 360px;
-  height: 100vh;
-  height: 100dvh;
-  max-height: 900px; /* не розтягується більше 900px на десктопі */
-  min-height: 600px;
-  position: relative; overflow: hidden;
-  background: #1B1B20;
-  box-shadow: 0 0 40px rgba(0,0,0,.5);
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #1D9E75;
+    --green-dark: #0F6E56;
+    --green-light: #E1F5EE;
+    --green-text: #085041;
+    --purple-light: #EEEDFE;
+    --purple-text: #3C3489;
+    --blue-light: #E6F1FB;
+    --blue-text: #185FA5;
+    --amber-light: #FAEEDA;
+    --amber-text: #633806;
+    --red-light: #FCEBEB;
+    --red-text: #A32D2D;
+    --gray-light: #F1EFE8;
+    --border: rgba(0,0,0,0.1);
+    --bg: #ffffff;
+    --bg2: #f7f7f5;
+    --text: #1a1a18;
+    --text2: #6b6b67;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg2); color: var(--text); min-height: 100vh; }
 
-/* ─── Typography ─── */
-.font-display {
-  font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-}
+  /* AUTH */
+  .auth-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+  .auth-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 32px; width: 360px; }
+  .auth-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+  .auth-logo-icon { width: 36px; height: 36px; background: var(--green); border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+  .auth-logo-icon svg { width: 20px; height: 20px; fill: white; }
+  .auth-title { font-size: 16px; font-weight: 600; }
+  .auth-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .form-label { font-size: 12px; color: var(--text2); display: block; margin-bottom: 4px; }
+  .form-input { width: 100%; padding: 9px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 14px; background: var(--bg); color: var(--text); margin-bottom: 12px; outline: none; }
+  .form-input:focus { border-color: var(--green); }
+  .auth-error { font-size: 12px; color: var(--red-text); background: var(--red-light); padding: 8px 12px; border-radius: var(--radius); margin-bottom: 12px; display: none; }
+  .btn-full { width: 100%; padding: 10px; background: var(--green); color: white; border: none; border-radius: var(--radius); font-size: 14px; font-weight: 500; cursor: pointer; }
+  .btn-full:hover { background: var(--green-dark); }
 
-/* ─── Buttons ─── */
-.btn {
-  font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 800;
-  font-size: 18px;
-  letter-spacing: 0.02em;
-  padding: 14px 22px;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: transform .12s ease, box-shadow .12s ease;
-  background: var(--ink2);
-  color: var(--cream);
-  -webkit-tap-highlight-color: transparent;
-}
-.btn--primary {
-  background: var(--honey);
-  color: var(--black);
-  box-shadow: 0 5px 0 var(--honey-dark), 0 10px 20px rgba(245,197,24,.28);
-}
-.btn--primary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--honey-dark); }
-.btn--xl    { font-size: 22px; padding: 17px 36px; border-radius: 16px; }
-.btn--wide  { width: 100%; }
-.btn--ghost {
-  background: transparent;
-  color: var(--cream);
-  border: 1.5px solid rgba(255,255,255,.18);
-}
+  /* LAYOUT */
+  .app { display: none; flex-direction: column; min-height: 100vh; }
+  .header { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 52px; position: sticky; top: 0; z-index: 10; }
+  .logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 28px; height: 28px; background: var(--green); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 14px; height: 14px; fill: white; }
+  .logo-name { font-size: 14px; font-weight: 600; }
+  .nav { display: flex; gap: 2px; }
+  .nav-btn { padding: 6px 14px; border-radius: var(--radius); border: none; font-size: 13px; cursor: pointer; background: transparent; color: var(--text2); transition: all 0.15s; }
+  .nav-btn:hover { background: var(--bg2); color: var(--text); }
+  .nav-btn.active { background: var(--bg2); color: var(--text); font-weight: 500; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+  .header-right { display: flex; align-items: center; gap: 10px; }
+  .user-pill { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border: 0.5px solid var(--border); border-radius: 99px; background: var(--bg2); font-size: 12px; }
+  .avatar { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
+  .role-badge { padding: 2px 7px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .rb-admin { background: var(--purple-light); color: var(--purple-text); }
+  .rb-mentor { background: var(--green-light); color: var(--green-text); }
+  .rb-reception { background: var(--blue-light); color: var(--blue-text); }
+  .btn-logout { padding: 5px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); background: transparent; font-size: 12px; cursor: pointer; color: var(--text2); }
+  .btn-logout:hover { background: var(--bg2); }
+  .content { flex: 1; padding: 24px 20px; max-width: 1100px; margin: 0 auto; width: 100%; }
+  .section { display: none; }
+  .section.active { display: block; }
 
-/* ─── Screens ─── */
-.screen {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center;
-}
+  /* COMPONENTS */
+  .sec-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .sec-title { font-size: 16px; font-weight: 600; }
+  .btn-primary { padding: 7px 16px; background: var(--green); color: white; border: none; border-radius: var(--radius); font-size: 13px; cursor: pointer; font-weight: 500; }
+  .btn-primary:hover { background: var(--green-dark); }
+  .btn-ghost { padding: 7px 14px; border: 0.5px solid var(--border); border-radius: var(--radius); background: transparent; font-size: 13px; cursor: pointer; color: var(--text2); }
+  .btn-ghost:hover { background: var(--bg2); }
+  .table-wrap { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .data-table th { text-align: left; padding: 9px 14px; font-size: 12px; font-weight: 500; color: var(--text2); border-bottom: 0.5px solid var(--border); background: var(--bg2); }
+  .data-table td { padding: 10px 14px; border-bottom: 0.5px solid var(--border); color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: var(--bg2); cursor: pointer; }
+  .name-cell { display: flex; align-items: center; gap: 8px; }
+  .badge { padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+  .b-active { background: var(--green-light); color: var(--green-text); }
+  .b-draft { background: var(--gray-light); color: #5F5E5A; }
+  .b-import { background: var(--purple-light); color: var(--purple-text); }
+  .notice { background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 12px 16px; font-size: 13px; color: var(--text2); margin-bottom: 16px; }
+  .notice strong { color: var(--text); }
+  .empty-state { text-align: center; padding: 40px; color: var(--text2); font-size: 13px; }
+  .loading { text-align: center; padding: 40px; color: var(--text2); font-size: 13px; }
+  .search-input { padding: 7px 12px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--bg); color: var(--text); width: 200px; outline: none; }
+  .search-input:focus { border-color: var(--green); }
 
-/* ─── START SCREEN ─── */
-.start {
-  padding: 18px 22px 20px;
-  justify-content: flex-start;
-  background: linear-gradient(180deg, #1A1A22 0%, #12121A 100%);
-}
-.start__logo {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 10px;
-  opacity: .7;
-}
-.start__chip {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .22em;
-  text-transform: uppercase;
-  color: var(--honey);
-  border: 1px solid rgba(245,197,24,.35);
-  padding: 5px 14px;
-  border-radius: 999px;
-  margin-bottom: 8px;
-  align-self: center;
-}
-.start__hero {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 0;
-}
-.start__bolid {
-  animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 16px 24px rgba(0,0,0,.55));
-}
-@keyframes float {
-  0%,100% { transform: translateY(0)    rotate(-3deg); }
-  50%      { transform: translateY(-14px) rotate(3deg);  }
-}
-.start__eyebrow {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .24em;
-  text-transform: uppercase;
-  color: var(--honey);
-  margin-bottom: 2px;
-  text-align: center;
-}
-.start__title {
-  font-size: 52px;
-  font-weight: 900;
-  line-height: .92;
-  color: var(--cream);
-  text-align: center;
-  margin-bottom: 8px;
-}
-.start__title span { color: var(--honey); }
-.start__sub {
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(244,236,216,.55);
-  text-align: center;
-  margin-bottom: 16px;
-  line-height: 1.45;
-}
-.start__cta { width: 100%; margin-bottom: 14px; }
-.start__stats {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  background: rgba(255,255,255,.04);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 12px 16px;
-}
-.start__stats-cell { text-align: center; display: flex; flex-direction: column; gap: 2px; }
-.start__stats-val {
-  font-size: 26px; font-weight: 900;
-  color: var(--honey); line-height: 1;
-}
-.start__stats-lbl {
-  font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .16em;
-  color: rgba(244,236,216,.4);
-}
+  /* COURSES */
+  .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .course-card { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 16px; cursor: pointer; transition: border-color 0.15s; }
+  .course-card:hover { border-color: rgba(0,0,0,0.25); }
+  .course-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .course-meta { font-size: 12px; color: var(--text2); display: flex; flex-direction: column; gap: 3px; }
 
-/* ─── HUD ─── */
-.hud {
-  position: absolute;
-  top: 12px; left: 12px; right: 12px;
-  z-index: 20;
-  pointer-events: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-}
-.hud__score {
-  font-size: 40px;
-  font-weight: 900;
-  color: var(--cream);
-  line-height: 1;
-  text-shadow: 0 2px 10px rgba(0,0,0,.7);
-}
-.hud__level {
-  font-size: 12px;
-  font-weight: 800;
-  color: var(--honey);
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  opacity: .85;
-}
+  /* COURSE DETAIL */
+  .back-btn { display: flex; align-items: center; gap: 6px; background: transparent; border: none; font-size: 13px; color: var(--text2); cursor: pointer; margin-bottom: 16px; padding: 0; }
+  .back-btn:hover { color: var(--text); }
+  .detail-tabs { display: flex; border-bottom: 0.5px solid var(--border); margin-bottom: 20px; }
+  .dtab { padding: 8px 16px; font-size: 13px; cursor: pointer; border: none; border-bottom: 2px solid transparent; background: transparent; color: var(--text2); }
+  .dtab.active { color: var(--green); border-bottom-color: var(--green); font-weight: 500; }
+  .dtab-pane { display: none; }
+  .dtab-pane.active { display: block; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  .info-card { background: var(--bg2); border-radius: var(--radius-lg); padding: 14px; }
+  .info-card-title { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .info-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; }
+  .info-row span:first-child { color: var(--text2); }
+  .info-row span:last-child { font-weight: 500; }
+  .mentor-card { display: flex; align-items: center; gap: 12px; background: var(--bg2); border-radius: var(--radius-lg); padding: 14px; }
+  .chip { display: inline-block; background: var(--bg); border: 0.5px solid var(--border); border-radius: 99px; padding: 3px 10px; font-size: 12px; margin: 2px; }
+  .material-item { display: flex; align-items: center; gap: 10px; background: var(--bg2); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 6px; }
+  .mat-icon { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .mat-pdf { background: var(--red-light); }
+  .mat-ppt { background: var(--amber-light); }
+  .mat-link { background: var(--green-light); }
 
-/* ─── TURBO BAR ─── */
-.turbo {
-  position: absolute;
-  bottom: 18px; left: 14px;
-  z-index: 20;
-  pointer-events: none;
-}
-.turbo__label {
-  font-size: 10px; font-weight: 800;
-  letter-spacing: .2em; text-transform: uppercase;
-  color: var(--honey);
-  margin-bottom: 4px;
-}
-.turbo__track {
-  width: 82px; height: 10px;
-  background: rgba(0,0,0,.55);
-  border: 1.5px solid rgba(245,197,24,.35);
-  border-radius: 6px;
-  overflow: hidden;
-}
-.turbo__fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--honey), var(--amber));
-  border-radius: 6px;
-  transition: width .15s;
-}
-.turbo__active {
-  position: absolute;
-  bottom: 18px; right: 14px;
-  z-index: 20;
-  font-size: 18px; font-weight: 900;
-  color: var(--amber);
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  text-shadow: 0 0 12px rgba(255,154,26,.9);
-  animation: blink .3s ease-in-out infinite alternate;
-  pointer-events: none;
-}
-@keyframes blink { from { opacity:1 } to { opacity:.15 } }
+  /* USERS */
+  .perm-grid { display: grid; grid-template-columns: 1fr 80px 80px 80px; border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; font-size: 13px; }
+  .perm-h { background: var(--bg2); padding: 8px 12px; font-size: 12px; font-weight: 500; color: var(--text2); border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .perm-h:last-child { border-right: none; }
+  .perm-c { padding: 9px 12px; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .perm-c:last-child { border-right: none; }
+  .perm-c.center { text-align: center; }
+  .perm-last .perm-c { border-bottom: none; }
 
-/* ─── FLOAT-UP +1 ─── */
-.floatup {
-  position: absolute;
-  z-index: 30;
-  font-size: 20px; font-weight: 900;
-  color: var(--honey);
-  text-shadow: 0 2px 0 #000, 1px 0 0 #000, -1px 0 0 #000;
-  pointer-events: none;
-  animation: floatup .7s ease-out forwards;
-}
-@keyframes floatup {
-  0%   { opacity:1; transform: translateY(0) scale(1); }
-  100% { opacity:0; transform: translateY(-52px) scale(1.2); }
-}
+  /* MODAL */
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); display: flex; align-items: flex-start; justify-content: center; z-index: 100; padding-top: 60px; }
+  .modal { background: var(--bg); border-radius: var(--radius-lg); border: 0.5px solid var(--border); padding: 22px; width: 440px; max-width: 95%; max-height: 80vh; overflow-y: auto; }
+  .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; }
+  .form-row { margin-bottom: 12px; }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .form-select { width: 100%; padding: 8px 10px; border: 0.5px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--bg); color: var(--text); }
+  .form-section { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
+  .form-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+  .form-section-title { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .days-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+  .day-chip { padding: 5px 10px; border: 0.5px solid var(--border); border-radius: 99px; font-size: 12px; cursor: pointer; color: var(--text2); background: transparent; }
+  .day-chip.sel { background: var(--green-light); color: var(--green-text); border-color: var(--green); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
 
-/* ─── GAME OVER ─── */
-.gameover {
-  justify-content: center;
-  gap: 6px;
-  background: rgba(15,15,16,.92);
-  backdrop-filter: blur(12px);
-  z-index: 30;
-}
-.gameover__emoji  { font-size: 48px; margin-bottom: 4px; }
-.gameover__title  { font-size: 18px; font-weight: 700; color: rgba(244,236,216,.65); }
-.gameover__score  { font-size: 80px; font-weight: 900; color: var(--cream); line-height: 1; }
-.gameover__sub    { font-size: 12px; font-weight: 700; color: rgba(244,236,216,.4); letter-spacing: .06em; }
-.gameover__badge  {
-  display: none;
-  background: var(--honey); color: var(--black);
-  font-size: 14px; font-weight: 900;
-  letter-spacing: .08em; text-transform: uppercase;
-  padding: 5px 18px; border-radius: 999px;
-}
-.gameover__badge.show { display: inline-block; }
-.gameover__btns { display: flex; flex-direction: column; gap: 8px; width: 220px; margin-top: 8px; }
+  /* PROFILE PANEL */
+  .profile-overlay { position: fixed; top: 0; right: 0; width: 320px; height: 100vh; background: var(--bg); border-left: 0.5px solid var(--border); z-index: 50; overflow-y: auto; display: none; }
+  .profile-inner { padding: 20px; }
+  .profile-close { background: transparent; border: none; font-size: 20px; cursor: pointer; color: var(--text2); float: right; line-height: 1; }
+  .p-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 600; margin: 8px auto 10px; }
+  .p-name { text-align: center; font-size: 15px; font-weight: 600; }
+  .p-sub { text-align: center; font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .psec { margin-top: 14px; padding-top: 14px; border-top: 0.5px solid var(--border); }
+  .psec-t { font-size: 10px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .prow { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; gap: 8px; }
+  .prow span:first-child { color: var(--text2); flex-shrink: 0; }
+  .prow span:last-child { color: var(--text); text-align: right; word-break: break-word; font-weight: 500; }
+  .p-motivation { font-size: 12px; color: var(--text); line-height: 1.6; padding: 4px 0; }
 
-/* ─── LEADERBOARD ─── */
-.lb {
-  background: linear-gradient(180deg, #1A1A22 0%, #0F0F10 100%);
-  padding: 22px 18px 20px;
-  gap: 0;
-}
-.lb__logo    { opacity: .65; margin-bottom: 12px; }
-.lb__title   { font-size: 32px; font-weight: 900; color: var(--honey); margin-bottom: 14px; }
-.lb__list    { width: 100%; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 390px; padding-right: 2px; }
-.lb__row     { display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; }
-.lb__row--me { border-color: var(--honey); background: rgba(245,197,24,.08); }
-.lb__rank    { font-size: 18px; font-weight: 900; color: rgba(244,236,216,.35); width: 26px; text-align: center; }
-.lb__name    { flex: 1; font-size: 13px; font-weight: 700; color: var(--cream); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lb__pts     { font-size: 16px; font-weight: 900; color: var(--honey); }
-.lb__empty   { font-size: 14px; font-weight: 700; color: rgba(244,236,216,.35); margin: 30px 0; }
-
-/* ─── AFFILIATE ─── */
-.aff {
-  background: linear-gradient(180deg, #1A1A22 0%, #0F0F10 100%);
-  padding: 0 22px 20px;
-  justify-content: flex-start;
-  position: relative;
-  overflow: hidden;
-}
-.aff__bg-hex {
-  position: absolute; pointer-events: none;
-}
-.aff__top {
-  width: 100%;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 0 8px;
-  font-size: 11px; font-weight: 800; letter-spacing: .18em;
-  text-transform: uppercase;
-}
-.aff__back { color: var(--cream); opacity: .5; cursor: pointer; font-size: 22px; padding: 0 6px; background: none; border: none; }
-.aff__step { color: rgba(244,236,216,.35); }
-.aff__skip { color: var(--honey); cursor: pointer; }
-.aff__hero {
-  width: 100%;
-  display: flex; align-items: center; justify-content: center;
-  height: 90px;
-}
-.aff__bee-wrap { animation: float 3s ease-in-out infinite; }
-.aff__eyebrow {
-  font-size: 10px; font-weight: 800; letter-spacing: .24em;
-  text-transform: uppercase; color: var(--honey);
-  margin-bottom: 2px;
-}
-.aff__title {
-  font-size: 36px; font-weight: 900; line-height: .92;
-  color: var(--cream); margin-bottom: 6px;
-}
-.aff__title span { color: var(--honey); }
-.aff__sub {
-  font-size: 13px; font-weight: 700;
-  color: rgba(244,236,216,.5); line-height: 1.45;
-  margin-bottom: 10px;
-}
-.aff__field {
-  width: 100%;
-  background: rgba(255,255,255,.06);
-  border: 1.5px solid rgba(255,255,255,.12);
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-bottom: 6px;
-  transition: border-color .15s;
-  display: block;
-}
-.aff__field.is-focused { border-color: var(--honey); }
-.aff__field.is-valid   { border-color: var(--green);  }
-.aff__field.is-error   { border-color: #E05050;       }
-.aff__field-label { font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: rgba(244,236,216,.4); display: block; margin-bottom: 5px; }
-.aff__field-row { display: flex; align-items: center; gap: 6px; }
-.aff__field-prefix { font-size: 22px; font-weight: 900; color: var(--honey); line-height: 1; }
-.aff__input {
-  flex: 1; background: none; border: none; outline: none;
-  font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 22px; font-weight: 900; color: var(--cream);
-  letter-spacing: .06em;
-}
-.aff__input::placeholder { color: rgba(244,236,216,.2); }
-.aff__check svg path { stroke: var(--green); }
-.aff__hint { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.35); min-height: 16px; margin-bottom: 6px; }
-.aff__hint--err { color: #E05050; }
-.aff__bonus {
-  width: 100%;
-  display: flex; align-items: center; gap: 12px;
-  background: rgba(245,197,24,.08);
-  border: 1px solid rgba(245,197,24,.2);
-  border-radius: 12px;
-  padding: 10px 14px;
-  margin-bottom: 14px;
-}
-.aff__bonus-icon { flex-shrink: 0; }
-.aff__bonus-copy { display: flex; flex-direction: column; gap: 1px; }
-.aff__bonus-copy b { font-size: 14px; font-weight: 900; color: var(--honey); letter-spacing: .04em; }
-.aff__bonus-copy span { font-size: 11px; font-weight: 700; color: rgba(244,236,216,.45); }
-.aff__cta { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-.aff__submit.is-disabled { opacity: .45; }
-.aff__paste {
-  background: none; border: none; cursor: pointer;
-  font-family: 'Nunito', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-size: 13px; font-weight: 700;
-  color: rgba(244,236,216,.4);
-  align-self: center;
-  padding: 6px;
-}
-
-/* ─── Honeycomb BG decoration ─── */
-.hex-deco {
-  position: absolute; pointer-events: none; overflow: hidden; inset: 0;
-}
-</style>
+  /* SCHEDULE */
+  .schedule-grid { display: grid; grid-template-columns: 56px repeat(5, 1fr); border: 0.5px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--bg); }
+  .sg-h { background: var(--bg2); padding: 8px 6px; text-align: center; font-size: 12px; font-weight: 500; border-bottom: 0.5px solid var(--border); border-right: 0.5px solid var(--border); }
+  .sg-h:last-child { border-right: none; }
+  .sg-t { background: var(--bg2); padding: 8px 4px; text-align: center; font-size: 11px; color: var(--text2); border-right: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); }
+  .sg-c { border-right: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border); padding: 4px; min-height: 52px; }
+  .sg-c:last-child { border-right: none; }
+  .sg-last .sg-c, .sg-last .sg-t { border-bottom: none; }
+  .sg-event { border-radius: 6px; padding: 4px 6px; font-size: 11px; height: 100%; }
+  .sg-event .en { font-weight: 600; }
+  .sg-event .es { font-size: 10px; opacity: 0.8; }
 </style>
 </head>
 <body>
-<div id="root"></div>
 
-<!-- Load modules in dependency order -->
-<script type="text/babel" src="src/sprites.js?v=2"></script>
-<script type="text/babel" src="src/constants.js?v=2"></script>
-<script type="text/babel" src="src/draw.js?v=2"></script>
-<script type="text/babel" src="src/BgLayer.js?v=2"></script>
-<script type="text/babel" src="src/GamePlay.js?v=2"></script>
-<script type="text/babel" src="src/screens.js?v=2"></script>
-<script type="text/babel" src="src/App.js?v=2"></script>
+<!-- AUTH -->
+<div class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+      <div><div class="auth-title">Atom Space CRM</div><div class="auth-sub">Увійдіть до системи</div></div>
+    </div>
+    <div class="auth-error" id="auth-error"></div>
+    <label class="form-label">Email</label>
+    <input class="form-input" id="login-email" type="email" placeholder="your@email.com"/>
+    <label class="form-label">Пароль</label>
+    <input class="form-input" id="login-pass" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="btn-full" onclick="doLogin()" id="login-btn">Увійти</button>
+  </div>
+</div>
 
+<!-- APP -->
+<div class="app" id="app">
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>
+      <div class="logo-name">Atom Space</div>
+    </div>
+    <div class="nav" id="main-nav"></div>
+    <div class="header-right">
+      <div class="user-pill" id="user-pill"></div>
+      <button class="btn-logout" onclick="doLogout()">Вийти</button>
+    </div>
+  </div>
+  <div class="content">
+    <div id="section-courses"  class="section"></div>
+    <div id="section-students" class="section"></div>
+    <div id="section-schedule" class="section"></div>
+    <div id="section-users"    class="section"></div>
+  </div>
+</div>
+
+<div id="modal-container"></div>
+<div class="profile-overlay" id="profile-overlay"><div class="profile-inner" id="profile-inner"></div></div>
+
+<script>
+// ============================================================
+// ВСТАВТЕ ВАШІ КРЕДИ SUPABASE НИЖЧЕ
+// ============================================================
+const SUPABASE_URL = 'https://XXXXXXXXXXXXXXXX.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+// ============================================================
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const AVC = ['#E1F5EE|#085041','#EEEDFE|#3C3489','#E6F1FB|#185FA5','#FAEEDA|#633806','#FAECE7|#712B13','#FBEAF0|#72243E'];
+const ROLE_LABEL = { admin: 'Адмін', mentor: 'Ментор', reception: 'Ресепшн' };
+const DAYS_UA = ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'];
+const SCHED_COLORS = ['#E1F5EE|#085041','#E6F1FB|#185FA5','#EEEDFE|#3C3489','#FAEEDA|#633806'];
+
+let currentUser = null;
+let courses = [], students = [], allUsers = [];
+let activeCourseId = null, activeDetailTab = 'info';
+
+function ini(n){ return n.split(' ').map(w=>w[0]||'').join('').substring(0,2).toUpperCase(); }
+function avColor(i){ return AVC[i % AVC.length].split('|'); }
+function fmt(d){ if(!d) return '—'; const p=d.split('-'); return p.length===3?`${p[2]}.${p[1]}.${p[0]}`:d; }
+
+// ── AUTH ──────────────────────────────────────────────────────
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const err   = document.getElementById('auth-error');
+  const btn   = document.getElementById('login-btn');
+  err.style.display = 'none';
+  btn.textContent = 'Завантаження...'; btn.disabled = true;
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) throw error;
+    await loadCurrentUser(data.user);
+  } catch(e) {
+    err.style.display = 'block';
+    err.textContent = e.message === 'Invalid login credentials' ? 'Невірний email або пароль' : e.message;
+    btn.textContent = 'Увійти'; btn.disabled = false;
+  }
+}
+
+async function loadCurrentUser(authUser){
+  const { data: profile } = await sb.from('users').select('*').eq('id', authUser.id).single();
+  if(!profile){ showError('Ваш профіль не знайдено. Зверніться до адміна.'); await sb.auth.signOut(); return; }
+  currentUser = { ...authUser, ...profile };
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  buildUI();
+}
+
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser = null; courses = []; students = []; allUsers = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-btn').textContent = 'Увійти';
+  document.getElementById('login-btn').disabled = false;
+}
+
+function showError(msg){
+  const err = document.getElementById('auth-error');
+  err.style.display = 'block'; err.textContent = msg;
+}
+
+// ── PERMISSIONS ───────────────────────────────────────────────
+const PERMS = {
+  admin:     { courses:{v:1,e:1,c:1}, students:{v:1,e:1,c:1}, schedule:{v:1,e:1}, users:{v:1,e:1} },
+  mentor:    { courses:{v:'own',e:'own',c:0}, students:{v:'own',e:'own',c:0}, schedule:{v:1,e:0}, users:{v:0,e:0} },
+  reception: { courses:{v:1,e:0,c:0}, students:{v:1,e:0,c:1}, schedule:{v:1,e:0}, users:{v:0,e:0} },
+};
+function can(s,a){ const p=PERMS[currentUser.role]; return p[s]&&(p[s][a]===1||p[s][a]==='own'); }
+function isOwn(s){ const p=PERMS[currentUser.role]; return p[s]&&(p[s].v==='own'); }
+
+// ── UI BUILDER ────────────────────────────────────────────────
+function buildUI(){
+  const [bg,tc] = avColor(0);
+  const rb = `rb-${currentUser.role}`;
+  document.getElementById('user-pill').innerHTML =
+    `<div class="avatar" style="background:${bg};color:${tc};">${ini(currentUser.name)}</div>
+     <span style="font-size:12px;">${currentUser.name}</span>
+     <span class="role-badge ${rb}">${ROLE_LABEL[currentUser.role]}</span>`;
+
+  const sections = [
+    {id:'courses',   label:'Курси',        show: can('courses','v')},
+    {id:'students',  label:'Студенти',     show: can('students','v')},
+    {id:'schedule',  label:'Розклад',      show: can('schedule','v')},
+    {id:'users',     label:'Користувачі',  show: can('users','v')},
+  ];
+  document.getElementById('main-nav').innerHTML = sections.map(s=>
+    `<button class="nav-btn" ${s.show?'':'disabled'} onclick="showSection('${s.id}')">${s.label}</button>`
+  ).join('');
+
+  const first = sections.find(s=>s.show);
+  if(first) showSection(first.id);
+}
+
+function showSection(id){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>{
+    if(b.textContent === ({courses:'Курси',students:'Студенти',schedule:'Розклад',users:'Користувачі'}[id]))
+      b.classList.add('active');
+  });
+  closeProfile();
+  ({ courses: renderCoursesList, students: renderStudents, schedule: renderSchedule, users: renderUsers })[id]?.();
+}
+
+// ── COURSES ───────────────────────────────────────────────────
+async function renderCoursesList(){
+  const el = document.getElementById('section-courses');
+  el.innerHTML = `<div class="sec-top"><div class="sec-title">Курси</div>${can('courses','c')?'<button class="btn-primary" onclick="openCourseModal()">+ Новий курс</button>':''}</div><div class="loading">Завантаження...</div>`;
+  document.getElementById('course-detail-view')?.remove();
+
+  let q = sb.from('courses').select('*').order('created_at', {ascending:false});
+  if(isOwn('courses')) q = q.eq('id', currentUser.course_id);
+  const { data } = await q;
+  courses = data || [];
+
+  el.innerHTML = `
+    <div class="sec-top">
+      <div class="sec-title">Курси <span style="font-size:13px;font-weight:400;color:var(--text2);">(${courses.length})</span></div>
+      ${can('courses','c')?'<button class="btn-primary" onclick="openCourseModal()">+ Новий курс</button>':''}
+    </div>
+    ${isOwn('courses')?'<div class="notice">Ви бачите лише <strong>свої курси</strong>.</div>':''}
+    <div class="courses-grid" id="courses-grid"></div>`;
+
+  document.getElementById('courses-grid').innerHTML = courses.length
+    ? courses.map(c=>`
+        <div class="course-card" onclick="openCourseDetail(${c.id})">
+          <span class="badge ${c.status==='active'?'b-active':'b-draft'}" style="margin-bottom:8px;display:inline-block;">${c.status==='active'?'Активний':'Чернетка'}</span>
+          <div class="course-title">${c.name}</div>
+          <div class="course-meta">
+            <span>${c.mentor_name||'—'}</span>
+            <span>${(c.schedule_days||[]).join('/')} ${c.schedule_time||''}</span>
+            <span>${fmt(c.start_date)} — ${fmt(c.end_date)}</span>
+          </div>
+        </div>`).join('')
+    : '<div class="empty-state">Курсів ще немає</div>';
+}
+
+async function openCourseDetail(id){
+  activeCourseId = id; activeDetailTab = 'info';
+  const el = document.getElementById('section-courses');
+  el.innerHTML = `<div id="course-detail-view"><div class="loading">Завантаження...</div></div>`;
+  const { data: c } = await sb.from('courses').select('*').eq('id',id).single();
+  const { data: mats } = await sb.from('materials').select('*').eq('course_id',id).order('created_at');
+  const { data: sts } = await sb.from('students').select('*').eq('course_id',id).order('name');
+
+  el.innerHTML = `<div id="course-detail-view">
+    <button class="back-btn" onclick="renderCoursesList()">← Всі курси</button>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <div style="font-size:20px;font-weight:700;">${c.name}</div>
+          <span class="badge ${c.status==='active'?'b-active':'b-draft'}">${c.status==='active'?'Активний':'Чернетка'}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text2);">${fmt(c.start_date)} — ${fmt(c.end_date)} · ${(sts||[]).length} студентів</div>
+      </div>
+      ${can('courses','e')?`<button class="btn-ghost" onclick="openCourseModal(${c.id})">Редагувати</button>`:''}
+    </div>
+    <div class="detail-tabs">
+      <button class="dtab ${activeDetailTab==='info'?'active':''}" onclick="switchTab('info')">Інформація</button>
+      <button class="dtab ${activeDetailTab==='students'?'active':''}" onclick="switchTab('students')">Студенти (${(sts||[]).length})</button>
+      <button class="dtab ${activeDetailTab==='materials'?'active':''}" onclick="switchTab('materials')">Матеріали (${(mats||[]).length})</button>
+    </div>
+
+    <div id="dtab-info" class="dtab-pane ${activeDetailTab==='info'?'active':''}">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-title">Розклад</div>
+          <div class="info-row"><span>Початок</span><span>${fmt(c.start_date)}</span></div>
+          <div class="info-row"><span>Кінець</span><span>${fmt(c.end_date)}</span></div>
+          <div style="margin-top:8px;">${(c.schedule_days||[]).map(d=>`<span class="chip">${d} ${c.schedule_time||''}</span>`).join('')}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Реєстрація</div>
+          ${c.registration_form
+            ?`<div style="font-size:12px;margin-bottom:8px;color:var(--text2);">Google Form підключено</div>
+               <a href="${c.registration_form}" style="font-size:12px;color:var(--blue-text);word-break:break-all;" target="_blank">${c.registration_form.substring(0,45)}...</a>`
+            :`<div style="font-size:13px;color:var(--text2);">Форму не додано</div>`}
+        </div>
+      </div>
+      <div class="mentor-card">
+        <div class="avatar" style="width:44px;height:44px;font-size:15px;background:var(--green-light);color:var(--green-text);">${ini(c.mentor_name||'?')}</div>
+        <div>
+          <div style="font-size:14px;font-weight:600;">${c.mentor_name||'—'}</div>
+          <div style="font-size:12px;color:var(--text2);">${c.mentor_telegram||''} · ${c.mentor_email||''}</div>
+          <div style="font-size:12px;color:var(--text2);">${c.mentor_phone||''}</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dtab-students" class="dtab-pane ${activeDetailTab==='students'?'active':''}">
+      ${(sts||[]).length
+        ?`<div class="table-wrap"><table class="data-table">
+            <thead><tr><th>Студент</th><th>Telegram</th><th>Навчання</th></tr></thead>
+            <tbody>${(sts||[]).map((s,i)=>{
+              const[bg,tc]=avColor(i);
+              return `<tr onclick="openProfile(${s.id})">
+                <td><div class="name-cell"><div class="avatar" style="background:${bg};color:${tc};">${ini(s.name)}</div>${s.name}</div></td>
+                <td style="color:var(--text2);">${s.telegram||'—'}</td>
+                <td style="color:var(--text2);">${s.study||'—'}</td>
+              </tr>`;}).join('')}
+            </tbody></table></div>`
+        :`<div class="empty-state">Студентів ще немає</div>`}
+    </div>
+
+    <div id="dtab-materials" class="dtab-pane ${activeDetailTab==='materials'?'active':''}">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn-primary" style="font-size:12px;" onclick="openMaterialModal(${c.id})">+ Додати матеріал</button>
+      </div>
+      ${(mats||[]).map((m,mi)=>`
+        <div class="material-item">
+          <div class="mat-icon ${m.type==='pdf'?'mat-pdf':m.type==='ppt'?'mat-ppt':'mat-link'}">${m.type==='pdf'?'📄':m.type==='ppt'?'📊':'🔗'}</div>
+          <div style="flex:1;">
+            <div style="font-size:13px;font-weight:500;">${m.name}</div>
+            <div style="font-size:11px;color:var(--text2);">${fmt(m.created_at?.split('T')[0])}${m.url?` · <a href="${m.url}" target="_blank" style="color:var(--blue-text);">відкрити</a>`:''}</div>
+          </div>
+          <button onclick="deleteMaterial(${m.id},${c.id})" style="background:transparent;border:none;font-size:16px;cursor:pointer;color:var(--text2);">×</button>
+        </div>`).join('') || '<div class="empty-state">Матеріалів ще немає</div>'}
+    </div>
+  </div>`;
+}
+
+function switchTab(tab){
+  activeDetailTab = tab;
+  document.querySelectorAll('.dtab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.dtab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('dtab-'+tab)?.classList.add('active');
+  document.querySelectorAll('.dtab').forEach(b=>{ if(b.textContent.startsWith({info:'Інф',students:'Студ',materials:'Мат'}[tab])) b.classList.add('active'); });
+}
+
+async function deleteMaterial(mid, cid){
+  await sb.from('materials').delete().eq('id', mid);
+  openCourseDetail(cid);
+}
+
+function openMaterialModal(cid){
+  showModal(`<div class="modal">
+    <div class="modal-title">Додати матеріал</div>
+    <div class="form-row"><label class="form-label">Тип</label>
+      <select class="form-select" id="mat-type"><option value="pdf">📄 PDF / документ</option><option value="ppt">📊 Презентація</option><option value="link">🔗 Посилання</option></select></div>
+    <div class="form-row"><label class="form-label">Назва</label>
+      <input class="form-input" id="mat-name" placeholder="напр. Лекція 3 — Функції"/></div>
+    <div class="form-row"><label class="form-label">Посилання (Google Drive / Slides)</label>
+      <input class="form-input" id="mat-url" placeholder="https://drive.google.com/..."/></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Скасувати</button>
+      <button class="btn-primary" onclick="saveMaterial(${cid})">Додати</button>
+    </div>
+  </div>`);
+}
+
+async function saveMaterial(cid){
+  const type = document.getElementById('mat-type').value;
+  const name = document.getElementById('mat-name').value || 'Матеріал';
+  const url  = document.getElementById('mat-url').value;
+  await sb.from('materials').insert([{ course_id: cid, type, name, url }]);
+  closeModal();
+  openCourseDetail(cid);
+}
+
+function openCourseModal(editId){
+  const c = editId ? courses.find(x=>x.id===editId) : null;
+  const selDays = c ? (c.schedule_days||[]) : [];
+  showModal(`<div class="modal">
+    <div class="modal-title">${c?'Редагувати курс':'Новий курс'}</div>
+    <div class="form-section">
+      <div class="form-section-title">Основне</div>
+      <div class="form-row"><label class="form-label">Назва курсу</label>
+        <input class="form-input" id="c-name" value="${c?c.name:''}" placeholder="напр. TypeScript Pro"/></div>
+      <div class="form-row-2">
+        <div><label class="form-label">Дата початку</label>
+          <input class="form-input" id="c-start" type="date" value="${c?c.start_date:''}"/></div>
+        <div><label class="form-label">Дата закінчення</label>
+          <input class="form-input" id="c-end" type="date" value="${c?c.end_date:''}"/></div>
+      </div>
+      <div class="form-row"><label class="form-label">Статус</label>
+        <select class="form-select" id="c-status">
+          <option value="draft" ${c?.status==='draft'?'selected':''}>Чернетка</option>
+          <option value="active" ${!c||c.status==='active'?'selected':''}>Активний</option>
+        </select></div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Розклад</div>
+      <div class="form-row"><label class="form-label">Дні тижня</label>
+        <div class="days-picker">${DAYS_UA.map(d=>`<button type="button" class="day-chip ${selDays.includes(d)?'sel':''}" onclick="this.classList.toggle('sel')">${d}</button>`).join('')}</div></div>
+      <div class="form-row"><label class="form-label">Час</label>
+        <input class="form-input" id="c-time" placeholder="18:00" value="${c?c.schedule_time:''}"/></div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Ментор</div>
+      <div class="form-row"><label class="form-label">Ім'я та прізвище</label>
+        <input class="form-input" id="m-name" value="${c?c.mentor_name:''}"/></div>
+      <div class="form-row-2">
+        <div><label class="form-label">Telegram</label>
+          <input class="form-input" id="m-tg" value="${c?c.mentor_telegram:''}" placeholder="@нік"/></div>
+        <div><label class="form-label">Телефон</label>
+          <input class="form-input" id="m-phone" value="${c?c.mentor_phone:''}" placeholder="+380..."/></div>
+      </div>
+      <div class="form-row"><label class="form-label">Email</label>
+        <input class="form-input" id="m-email" value="${c?c.mentor_email:''}" placeholder="mentor@atomspace.com"/></div>
+    </div>
+    <div class="form-section">
+      <div class="form-section-title">Реєстрація студентів</div>
+      <div class="form-row"><label class="form-label">Посилання на Google Form</label>
+        <input class="form-input" id="c-form" value="${c?c.registration_form||'':''}" placeholder="https://forms.google.com/..."/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Скасувати</button>
+      <button class="btn-primary" onclick="saveCourse(${editId||'null'})">${c?'Зберегти':'Створити'}</button>
+    </div>
+  </div>`);
+}
+
+async function saveCourse(editId){
+  const days = [...document.querySelectorAll('#modal-container .day-chip.sel')].map(b=>b.textContent);
+  const payload = {
+    name: document.getElementById('c-name').value || 'Новий курс',
+    start_date: document.getElementById('c-start').value || null,
+    end_date: document.getElementById('c-end').value || null,
+    status: document.getElementById('c-status').value,
+    schedule_days: days,
+    schedule_time: document.getElementById('c-time').value,
+    mentor_name: document.getElementById('m-name').value,
+    mentor_telegram: document.getElementById('m-tg').value,
+    mentor_phone: document.getElementById('m-phone').value,
+    mentor_email: document.getElementById('m-email').value,
+    registration_form: document.getElementById('c-form').value,
+  };
+  if(editId){ await sb.from('courses').update(payload).eq('id', editId); }
+  else { await sb.from('courses').insert([payload]); }
+  closeModal();
+  renderCoursesList();
+}
+
+// ── STUDENTS ──────────────────────────────────────────────────
+async function renderStudents(filter=''){
+  const el = document.getElementById('section-students');
+  el.innerHTML = `<div class="sec-top"><div class="sec-title">Студенти</div></div><div class="loading">Завантаження...</div>`;
+
+  let q = sb.from('students').select('*, courses(name)').order('name');
+  if(isOwn('students')) q = q.eq('course_id', currentUser.course_id);
+  if(filter) q = q.ilike('name', `%${filter}%`);
+  const { data } = await q;
+  students = data || [];
+
+  el.innerHTML = `
+    <div class="sec-top">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="sec-title">Студенти</div>
+        <span style="font-size:12px;color:var(--text2);">${students.length} осіб</span>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input class="search-input" placeholder="Пошук..." oninput="renderStudents(this.value)"/>
+        ${can('students','c')?'<button class="btn-primary" onclick="openStudentModal()">+ Додати</button>':''}
+      </div>
+    </div>
+    ${isOwn('students')?'<div class="notice">Ви бачите лише студентів <strong>своїх курсів</strong>.</div>':''}
+    <div class="table-wrap"><table class="data-table">
+      <thead><tr>
+        <th style="width:30%;">Студент</th>
+        <th style="width:18%;">Telegram</th>
+        <th style="width:24%;">Навчання</th>
+        <th style="width:20%;">Курс</th>
+        <th style="width:8%;">Дата</th>
+      </tr></thead>
+      <tbody>${students.length
+        ? students.map((s,i)=>{
+            const[bg,tc]=avColor(i);
+            return `<tr onclick="openProfile(${s.id})">
+              <td><div class="name-cell"><div class="avatar" style="background:${bg};color:${tc};">${ini(s.name)}</div>${s.name}</div></td>
+              <td style="color:var(--text2);">${s.telegram||'—'}</td>
+              <td style="color:var(--text2);">${s.study||'—'}</td>
+              <td style="color:var(--text2);font-size:12px;">${s.courses?.name||'—'}</td>
+              <td style="color:var(--text2);">${fmt(s.created_at?.split('T')[0])}</td>
+            </tr>`;}).join('')
+        : '<tr><td colspan="5"><div class="empty-state">Студентів ще немає</div></td></tr>'}
+      </tbody>
+    </table></div>`;
+}
+
+async function openProfile(id){
+  const { data: s } = await sb.from('students').select('*, courses(name)').eq('id',id).single();
+  if(!s) return;
+  const [bg,tc] = avColor(0);
+  document.getElementById('profile-overlay').style.display = 'block';
+  document.getElementById('profile-inner').innerHTML = `
+    <button class="profile-close" onclick="closeProfile()">×</button>
+    <div style="clear:both;"></div>
+    <div class="p-avatar" style="background:${bg};color:${tc};">${ini(s.name)}</div>
+    <div class="p-name">${s.name}</div>
+    <div class="p-sub">${s.study||''}</div>
+    <div class="psec"><div class="psec-t">Контакти</div>
+      <div class="prow"><span>Telegram</span><span>${s.telegram||'—'}</span></div>
+      <div class="prow"><span>Email</span><span>${s.email||'—'}</span></div>
+      <div class="prow"><span>Телефон</span><span>${s.phone||'—'}</span></div>
+    </div>
+    <div class="psec"><div class="psec-t">Курс</div>
+      <div class="prow"><span>Курс</span><span>${s.courses?.name||'—'}</span></div>
+      <div class="prow"><span>Дата нар.</span><span>${s.bday||'—'}</span></div>
+      <div class="prow"><span>Дізнався з</span><span>${s.source||'—'}</span></div>
+      ${s.projects?`<div class="prow"><span>Проєкти</span><span style="color:var(--blue-text);">${s.projects}</span></div>`:''}
+    </div>
+    ${s.motivation?`<div class="psec"><div class="psec-t">Мотивація</div><div class="p-motivation">${s.motivation.substring(0,250)}${s.motivation.length>250?'…':''}</div></div>`:''}
+    ${can('students','e')?`<div class="psec"><button class="btn-ghost" style="width:100%;font-size:12px;" onclick="openStudentModal(${s.id})">Редагувати</button></div>`:''}
+    <div class="psec"><button class="btn-ghost" style="width:100%;font-size:12px;" onclick="closeProfile()">Закрити</button></div>`;
+}
+
+function closeProfile(){ document.getElementById('profile-overlay').style.display='none'; }
+
+function openStudentModal(editId){
+  const s = editId ? students.find(x=>x.id===editId) : null;
+  showModal(`<div class="modal">
+    <div class="modal-title">${s?'Редагувати студента':'Новий студент'}</div>
+    <div class="form-row"><label class="form-label">Ім'я та прізвище</label>
+      <input class="form-input" id="s-name" value="${s?s.name:''}" placeholder="Ім'я Прізвище"/></div>
+    <div class="form-row-2">
+      <div><label class="form-label">Email</label>
+        <input class="form-input" id="s-email" value="${s?s.email||'':''}" placeholder="email@..."/></div>
+      <div><label class="form-label">Телефон</label>
+        <input class="form-input" id="s-phone" value="${s?s.phone||'':''}" placeholder="+380..."/></div>
+    </div>
+    <div class="form-row-2">
+      <div><label class="form-label">Telegram</label>
+        <input class="form-input" id="s-tg" value="${s?s.telegram||'':''}" placeholder="@нік"/></div>
+      <div><label class="form-label">Дата народження</label>
+        <input class="form-input" id="s-bday" value="${s?s.bday||'':''}" placeholder="дд.мм.рррр"/></div>
+    </div>
+    <div class="form-row"><label class="form-label">Де навчається</label>
+      <input class="form-input" id="s-study" value="${s?s.study||'':''}" placeholder="КПІ, Комп'ютерні науки"/></div>
+    <div class="form-row"><label class="form-label">Курс</label>
+      <select class="form-select" id="s-course">
+        ${courses.map(c=>`<option value="${c.id}" ${s?.course_id===c.id?'selected':''}>${c.name}</option>`).join('')}
+      </select></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Скасувати</button>
+      <button class="btn-primary" onclick="saveStudent(${editId||'null'})">${s?'Зберегти':'Додати'}</button>
+    </div>
+  </div>`);
+}
+
+async function saveStudent(editId){
+  const payload = {
+    name: document.getElementById('s-name').value || 'Студент',
+    email: document.getElementById('s-email').value,
+    phone: document.getElementById('s-phone').value,
+    telegram: document.getElementById('s-tg').value,
+    bday: document.getElementById('s-bday').value,
+    study: document.getElementById('s-study').value,
+    course_id: parseInt(document.getElementById('s-course').value) || null,
+  };
+  if(editId){ await sb.from('students').update(payload).eq('id', editId); }
+  else { await sb.from('students').insert([payload]); }
+  closeModal();
+  renderStudents();
+}
+
+// ── SCHEDULE ──────────────────────────────────────────────────
+async function renderSchedule(){
+  const el = document.getElementById('section-schedule');
+  el.innerHTML = `<div class="sec-top"><div class="sec-title">Розклад</div></div><div class="loading">Завантаження...</div>`;
+  const { data } = await sb.from('courses').select('name, schedule_days, schedule_time, status').eq('status','active');
+  const canEdit = can('schedule','e');
+  const times = ['09:00','11:00','13:00','15:00','18:00','19:00'];
+  const days = ['Пн','Вт','Ср','Чт','Пт'];
+
+  const events = [];
+  (data||[]).forEach((c,ci)=>{
+    (c.schedule_days||[]).forEach(day=>{
+      const di = days.indexOf(day);
+      const ti = times.indexOf(c.schedule_time);
+      if(di>=0 && ti>=0) events.push({di,ti,name:c.name.split(' ').slice(0,2).join(' '),ci});
+    });
+  });
+
+  let grid = `<div class="schedule-grid">`;
+  grid += `<div class="sg-h"></div>`;
+  days.forEach(d=>{ grid+=`<div class="sg-h">${d}</div>`; });
+  times.forEach((t,ti)=>{
+    const last = ti===times.length-1;
+    grid += `<div class="sg-t${last?' sg-last':''}">${t}</div>`;
+    days.forEach((_,di)=>{
+      const ev = events.find(e=>e.di===di&&e.ti===ti);
+      const [bg,tc] = ev ? SCHED_COLORS[ev.ci%SCHED_COLORS.length].split('|') : ['',''];
+      grid += `<div class="sg-c${last?' sg-last':''}">${ev?`<div class="sg-event" style="background:${bg};color:${tc};"><div class="en">${ev.name}</div></div>`:''}</div>`;
+    });
+  });
+  grid += '</div>';
+
+  el.innerHTML = `
+    <div class="sec-top">
+      <div class="sec-title">Розклад</div>
+      ${canEdit?'<button class="btn-primary" onclick="openCourseModal()">+ Новий курс</button>':''}
+    </div>
+    ${!canEdit?'<div class="notice">Тільки перегляд. Для змін зверніться до адміна.</div>':''}
+    ${grid}`;
+}
+
+// ── USERS ─────────────────────────────────────────────────────
+async function renderUsers(){
+  const el = document.getElementById('section-users');
+  el.innerHTML = `<div class="loading">Завантаження...</div>`;
+  const { data } = await sb.from('users').select('*, courses(name)').order('role');
+  allUsers = data || [];
+
+  const permRows = [
+    {label:'Курси — перегляд',     a:1, m:'own', r:1},
+    {label:'Курси — редагування',  a:1, m:'own', r:0},
+    {label:'Студенти — перегляд',  a:1, m:'own', r:1},
+    {label:'Студенти — редагування',a:1,m:'own', r:0},
+    {label:'Розклад — перегляд',   a:1, m:1,     r:1},
+    {label:'Розклад — редагування',a:1, m:0,     r:0},
+    {label:'Користувачі',          a:1, m:0,     r:0},
+  ];
+  const cell = v => v===1?'<span style="color:var(--green);">✓</span>':v==='own'?'<span style="color:#BA7517;">свої</span>':'<span style="color:#D3D1C7;">—</span>';
+
+  el.innerHTML = `
+    <div class="sec-top">
+      <div class="sec-title">Користувачі</div>
+      ${can('users','e')?'<button class="btn-primary" onclick="openUserModal()">+ Додати</button>':''}
+    </div>
+    <div class="table-wrap" style="margin-bottom:20px;"><table class="data-table">
+      <thead><tr><th>Користувач</th><th>Email</th><th>Роль</th><th>Курс</th>${can('users','e')?'<th></th>':''}</tr></thead>
+      <tbody>${allUsers.map((u,i)=>{
+        const[bg,tc]=avColor(i);
+        return `<tr>
+          <td><div class="name-cell"><div class="avatar" style="background:${bg};color:${tc};">${ini(u.name)}</div>${u.name}</div></td>
+          <td style="color:var(--text2);font-size:12px;">${u.email||'—'}</td>
+          <td><span class="role-badge rb-${u.role}">${ROLE_LABEL[u.role]}</span></td>
+          <td style="color:var(--text2);font-size:12px;">${u.courses?.name||'—'}</td>
+          ${can('users','e')?`<td><button class="btn-ghost" style="font-size:12px;padding:4px 8px;" onclick="openEditUserModal('${u.id}')">Змінити роль</button></td>`:''}
+        </tr>`;}).join('')}
+      </tbody>
+    </table></div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Матриця прав доступу</div>
+    <div class="perm-grid">
+      <div class="perm-h">Дія</div>
+      <div class="perm-h" style="text-align:center;">Адмін</div>
+      <div class="perm-h" style="text-align:center;">Ментор</div>
+      <div class="perm-h" style="text-align:center;border-right:none;">Ресепшн</div>
+      ${permRows.map((r,i)=>{
+        const last = i===permRows.length-1;
+        return `<div class="perm-c${last?' perm-last':''}">${r.label}</div>
+          <div class="perm-c center${last?' perm-last':''}">${cell(r.a)}</div>
+          <div class="perm-c center${last?' perm-last':''}">${cell(r.m)}</div>
+          <div class="perm-c center${last?' perm-last':''}" style="border-right:none;">${cell(r.r)}</div>`;
+      }).join('')}
+    </div>`;
+}
+
+function openUserModal(){
+  showModal(`<div class="modal">
+    <div class="modal-title">Новий користувач</div>
+    <div class="notice" style="margin-bottom:14px;">
+      Спочатку створи користувача в <strong>Supabase → Authentication → Users → Invite user</strong>,
+      потім повернись сюди і призначи роль.
+    </div>
+    <div class="form-row"><label class="form-label">UUID користувача (з Supabase Auth)</label>
+      <input class="form-input" id="u-id" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"/></div>
+    <div class="form-row"><label class="form-label">Ім'я та прізвище</label>
+      <input class="form-input" id="u-name" placeholder="Ім'я Прізвище"/></div>
+    <div class="form-row"><label class="form-label">Роль</label>
+      <select class="form-select" id="u-role" onchange="toggleCourseField(this.value)">
+        <option value="admin">Адмін</option>
+        <option value="mentor">Ментор</option>
+        <option value="reception">Ресепшн</option>
+      </select></div>
+    <div class="form-row" id="course-field" style="display:none;"><label class="form-label">Курс ментора</label>
+      <select class="form-select" id="u-course">
+        ${courses.map(c=>`<option value="${c.id}">${c.name}</option>`).join('')}
+      </select></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Скасувати</button>
+      <button class="btn-primary" onclick="saveUser()">Додати</button>
+    </div>
+  </div>`);
+}
+
+function toggleCourseField(role){
+  const f = document.getElementById('course-field');
+  if(f) f.style.display = role==='mentor'?'block':'none';
+}
+
+async function saveUser(){
+  const id       = document.getElementById('u-id').value.trim();
+  const name     = document.getElementById('u-name').value || 'Користувач';
+  const role     = document.getElementById('u-role').value;
+  const courseId = role==='mentor' ? parseInt(document.getElementById('u-course')?.value)||null : null;
+  if(!id){ alert('Вкажи UUID'); return; }
+  const { error } = await sb.from('users').upsert([{ id, name, role, course_id: courseId }]);
+  if(error){ alert('Помилка: '+error.message); return; }
+  closeModal();
+  renderUsers();
+}
+
+function openEditUserModal(uid){
+  const u = allUsers.find(x=>x.id===uid);
+  showModal(`<div class="modal">
+    <div class="modal-title">Змінити роль — ${u.name}</div>
+    <div class="form-row"><label class="form-label">Роль</label>
+      <select class="form-select" id="er-role">
+        <option value="admin" ${u.role==='admin'?'selected':''}>Адмін</option>
+        <option value="mentor" ${u.role==='mentor'?'selected':''}>Ментор</option>
+        <option value="reception" ${u.role==='reception'?'selected':''}>Ресепшн</option>
+      </select></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Скасувати</button>
+      <button class="btn-primary" onclick="applyRole('${uid}')">Зберегти</button>
+    </div>
+  </div>`);
+}
+
+async function applyRole(uid){
+  await sb.from('users').update({ role: document.getElementById('er-role').value }).eq('id', uid);
+  closeModal();
+  renderUsers();
+}
+
+// ── MODAL HELPERS ─────────────────────────────────────────────
+function showModal(html){
+  document.getElementById('modal-container').innerHTML =
+    `<div class="modal-overlay" onclick="if(event.target===this)closeModal()">${html}</div>`;
+}
+function closeModal(){ document.getElementById('modal-container').innerHTML=''; }
+
+// ── INIT ──────────────────────────────────────────────────────
+sb.auth.onAuthStateChange(async (event, session) => {
+  if(event==='SIGNED_IN' && session){
+    await loadCurrentUser(session.user);
+  } else if(event==='SIGNED_OUT'){
+    document.getElementById('app').style.display='none';
+    document.getElementById('auth-screen').style.display='flex';
+  }
+});
+</script>
 </body>
 </html>
