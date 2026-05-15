@@ -16,7 +16,7 @@ function GamePlay({ onGameOver }) {
     speed: BASE_SPEED, level: 1, score: 0, flowers: 0,
     turboCharge: 0, turboActive: false, turboTimer: 0,
     pipes: [], buds: [], particles: [],
-    nextPipe: 100, nextBud: 40,
+    nextPipe: 160, nextBud: 40,
     lastTap: 0, shake: 0,
     died: false, deathSent: false,
   });
@@ -84,7 +84,7 @@ function GamePlay({ onGameOver }) {
       if (st.nextPipe <= 0) {
         const gapY = 80 + Math.random() * (GH - 80 - GAP_H - 80);
         st.pipes.push({ x: GW + PIPE_W, gapY, scored: false });
-        st.nextPipe = Math.round(120 / (spd / BASE_SPEED));
+        st.nextPipe = Math.round(200 / (spd / BASE_SPEED));
       }
       st.pipes.forEach(p => p.x -= spd);
       st.pipes = st.pipes.filter(p => p.x > -PIPE_W - 10);
